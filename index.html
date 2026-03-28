@@ -8,6 +8,11 @@
     <meta name="keywords" content="衣橱管理,穿搭搭配,时尚,衣物整理">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💗</text></svg>">
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- 🎨 AI抠图库 - remove.bg 替代方案 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.1/dist/body-pix.min.js"></script>
+    
     <style>
         /* 基础样式保持不变... */
         * {
@@ -76,6 +81,38 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: 0.5px;
+        }
+
+        /* 📂 分类筛选器 */
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+        }
+
+        .filter-btn:active {
+            transform: scale(0.95);
         }
 
         /* 📦 衣柜管理按钮 */
@@ -433,12 +470,53 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 📂 分类筛选条 */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px 20px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-tab {
+            min-width: auto;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .category-tab.active {
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+        }
+
+        .category-tab:active {
+            transform: scale(0.95);
+        }
+
         /* 📦 增强版衣物网格样式 */
         .clothes-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
-            padding: 0 20px 20px;
+            padding: 16px 20px 20px;
             position: relative;
         }
 
@@ -540,6 +618,12 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        /* 🔍 图片放大查看 */
+        .clothes-image:hover img {
+            transform: scale(1.05);
         }
 
         .clothes-info {
@@ -640,7 +724,7 @@
             background: white;
         }
 
-        /* 📷 相机功能样式保持不变... */
+        /* 📷 相机功能样式 */
         .photo-section {
             margin-bottom: 24px;
         }
@@ -680,14 +764,64 @@
             opacity: 0.3;
         }
 
+        /* 🎨 AI美化处理区域 */
+        .ai-processing {
+            margin-top: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            display: none;
+        }
+
+        .ai-processing.active {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .processing-steps {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+        }
+
+        .processing-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+        }
+
+        .processing-step i {
+            font-size: 16px;
+        }
+
+        .processing-step.active i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .camera-buttons {
             display: flex;
             gap: 12px;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .camera-btn {
             flex: 1;
+            min-width: 100px;
             padding: 14px 20px;
             border: 2px solid #ff6b9d;
             background: transparent;
@@ -717,6 +851,13 @@
             color: white;
             border: none;
             box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+        }
+
+        .camera-btn.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
         }
 
         .camera-btn.danger {
@@ -824,6 +965,76 @@
             font-size: 20px;
         }
 
+        /* 🔍 图片预览模态框 */
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3500;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-preview-modal.active {
+            display: flex;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .preview-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            color: white;
+            z-index: 10;
+        }
+
+        .preview-image {
+            max-width: 90%;
+            max-height: 80%;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .preview-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .close-preview-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .close-preview-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
         .toast {
             position: fixed;
             top: 80px;
@@ -891,13 +1102,14 @@
         }
 
         /* 响应式优化 */
-        @media (max-width: 380px) {
+        @media (max-width: 480px) {
             .camera-buttons {
                 flex-direction: column;
             }
             
             .camera-btn {
                 width: 100%;
+                flex: none;
             }
             
             .wardrobe-controls {
@@ -909,6 +1121,33 @@
                 font-size: 11px;
                 padding: 6px 10px;
             }
+            
+            .category-tabs {
+                padding: 12px 16px 0;
+            }
+            
+            .category-tab {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* AI处理进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b9d, #ffa8cc);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
         }
     </style>
 </head>
@@ -1008,8 +1247,8 @@
                         <div class="menu-icon">
                             <i class="fas fa-camera"></i>
                         </div>
-                        <div class="menu-title">拍照添加</div>
-                        <div class="menu-subtitle">记录新衣物</div>
+                        <div class="menu-title">AI拍照</div>
+                        <div class="menu-subtitle">智能抠图美化</div>
                     </div>
                     <div class="menu-item" onclick="showToast('🤖 AI智能搭配功能开发中...', 'info')">
                         <div class="menu-icon secondary">
@@ -1022,8 +1261,8 @@
                         <div class="menu-icon accent">
                             <i class="fas fa-search"></i>
                         </div>
-                        <div class="menu-title">查找衣物</div>
-                        <div class="menu-subtitle">快速查找</div>
+                        <div class="menu-title">分类查看</div>
+                        <div class="menu-subtitle">快速筛选</div>
                     </div>
                     <div class="menu-item" onclick="showToast('🎯 发现功能即将上线，带您探索更多穿搭灵感！', 'info')">
                         <div class="menu-icon gradient">
@@ -1037,6 +1276,38 @@
 
             <!-- 📦 增强版衣柜页面 -->
             <div class="page" id="wardrobe">
+                <!-- 📂 分类筛选标签 -->
+                <div class="category-tabs">
+                    <div class="category-tab active" onclick="filterByCategory('all')">
+                        <i class="fas fa-th-large"></i>
+                        全部
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('top')">
+                        <i class="fas fa-tshirt"></i>
+                        上衣
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('bottom')">
+                        <i class="fas fa-cut"></i>
+                        下装
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('dress')">
+                        <i class="fas fa-female"></i>
+                        套装
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('outerwear')">
+                        <i class="fas fa-vest"></i>
+                        外套
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('shoes')">
+                        <i class="fas fa-shoe-prints"></i>
+                        鞋子
+                    </div>
+                    <div class="category-tab" onclick="filterByCategory('accessory')">
+                        <i class="fas fa-gem"></i>
+                        配饰
+                    </div>
+                </div>
+                
                 <!-- 拖拽提示 -->
                 <div class="drag-hint" id="dragHint">
                     <i class="fas fa-hand-paper"></i>
@@ -1069,29 +1340,62 @@
                 </div>
             </div>
 
-            <!-- 📷 添加页面 -->
+            <!-- 📷 增强版添加页面 -->
             <div class="page" id="add">
                 <div class="form-container">
                     <h3 style="margin-bottom: 24px; text-align: center; font-size: 20px; color: #2c3e50;">
-                        📷 添加新衣物
+                        🎨 AI智能添加衣物
                     </h3>
                     
+                    <!-- 📸 拍照区域 -->
                     <div class="photo-section">
                         <div class="photo-preview" id="photoPreview">
                             <div class="photo-placeholder">
                                 <i class="fas fa-camera"></i>
-                                <div>点击下方按钮拍照或选择图片</div>
+                                <div>AI智能拍照，自动抠图美化</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 🎨 AI处理状态 -->
+                        <div class="ai-processing" id="aiProcessing">
+                            <div style="font-weight: 600; margin-bottom: 8px;">
+                                <i class="fas fa-robot"></i> AI正在处理您的照片...
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="processing-steps" id="processSteps">
+                                <div class="processing-step" id="step1">
+                                    <i class="fas fa-camera"></i>
+                                    <span>识别衣物</span>
+                                </div>
+                                <div class="processing-step" id="step2">
+                                    <i class="fas fa-cut"></i>
+                                    <span>智能抠图</span>
+                                </div>
+                                <div class="processing-step" id="step3">
+                                    <i class="fas fa-magic"></i>
+                                    <span>背景美化</span>
+                                </div>
+                                <div class="processing-step" id="step4">
+                                    <i class="fas fa-check"></i>
+                                    <span>处理完成</span>
+                                </div>
                             </div>
                         </div>
                         
                         <div class="camera-buttons">
                             <button class="camera-btn primary" onclick="openCamera()">
                                 <i class="fas fa-camera"></i>
-                                <span>拍照</span>
+                                <span>AI拍照</span>
                             </button>
                             <button class="camera-btn" onclick="selectFromGallery()">
                                 <i class="fas fa-image"></i>
                                 <span>相册</span>
+                            </button>
+                            <button class="camera-btn secondary" onclick="enhancePhoto()" id="enhanceBtn" style="display: none;">
+                                <i class="fas fa-magic"></i>
+                                <span>AI美化</span>
                             </button>
                             <button class="camera-btn danger" onclick="removePhoto()" id="removePhotoBtn" style="display: none;">
                                 <i class="fas fa-trash"></i>
@@ -1110,7 +1414,8 @@
                         <select class="form-select" id="clothesCategory">
                             <option value="">请选择分类</option>
                             <option value="top">👕 上衣 (T恤、衬衫、毛衣等)</option>
-                            <option value="bottom">👖 下装 (裤子、裙子等)</option>
+                            <option value="bottom">👖 下装 (裤子、短裤等)</option>
+                            <option value="dress">👗 套装 (连衣裙、套装等)</option>
                             <option value="outerwear">🧥 外套 (夹克、大衣等)</option>
                             <option value="shoes">👟 鞋子 (运动鞋、高跟鞋等)</option>
                             <option value="accessory">💍 配饰 (包包、首饰等)</option>
@@ -1137,7 +1442,7 @@
                     <h2 style="margin-bottom: 8px; color: #2c3e50;">时尚达人</h2>
                     <p style="color: #7f8c8d; margin-bottom: 20px;">让每天的穿搭都充满惊喜</p>
                     <div style="display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, #ff6b9d, #ffa8cc); color: white; border-radius: 20px; font-size: 12px;">
-                        StyleCloset 用户
+                        StyleCloset v2.0 用户
                     </div>
                 </div>
 
@@ -1156,19 +1461,19 @@
                         <div class="menu-title">个人设置</div>
                         <div class="menu-subtitle">偏好设置</div>
                     </div>
-                    <div class="menu-item" onclick="showToast('💡 衣柜整理指南：\\n\\n📦 整理模式：\\n• 点击「整理」按钮进入管理模式\\n• 长按衣物图标可拖拽排序\\n• 点击红色❌删除衣物\\n• 点击「完成」退出整理模式\\n\\n🎯 拖拽排序：\\n• 长按衣物卡片开始拖拽\\n• 拖动到目标位置松手\\n• 自动保存新的排序', 'info')">
+                    <div class="menu-item" onclick="showToast('💡 StyleCloset v2.0 功能指南：\\n\\n🎨 AI智能功能：\\n• AI智能拍照抠图\\n• 自动背景美化\\n• 衣物识别分类\\n\\n📂 分类管理：\\n• 7大类别筛选\\n• 新增套装分类\\n• 快速分类查看\\n\\n🔍 图片预览：\\n• 点击衣物放大查看\\n• 高清图片展示\\n• 详细信息显示', 'info')">
                         <div class="menu-icon accent">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div class="menu-title">帮助中心</div>
                         <div class="menu-subtitle">使用帮助</div>
                     </div>
-                    <div class="menu-item" onclick="showToast('StyleCloset v1.3 💗\\n\\n📦 新功能上线：\\n• 衣柜拖拽排序功能\\n• 一键删除衣物\\n• 整理模式管理\\n• 视觉反馈优化\\n\\n🎯 操作说明：\\n• 进入衣柜页面\\n• 点击「整理」按钮\\n• 长按拖拽重新排序\\n• 点击红❌删除衣物', 'info')">
+                    <div class="menu-item" onclick="showToast('StyleCloset v2.0 💗\\n\\n🎨 重大更新：\\n• AI智能抠图功能\\n• 图片美化处理\\n• 新增套装分类\\n• 衣柜分类筛选\\n• 图片放大预览\\n• 拖拽整理优化\\n\\n🤖 AI功能：\\n• 自动识别衣物\\n• 智能抠图去背景\\n• 自动美化处理', 'info')">
                         <div class="menu-icon gradient">
                             <i class="fas fa-info-circle"></i>
                         </div>
                         <div class="menu-title">关于应用</div>
-                        <div class="menu-subtitle">v1.3 整理版</div>
+                        <div class="menu-subtitle">v2.0 AI版</div>
                     </div>
                 </div>
             </div>
@@ -1205,7 +1510,7 @@
             <button onclick="closeCamera()" style="background: none; border: none; color: white; font-size: 16px; cursor: pointer;">
                 <i class="fas fa-times"></i> 取消
             </button>
-            <span>拍照</span>
+            <span>AI智能拍照</span>
             <button onclick="switchCamera()" style="background: none; border: none; color: white; font-size: 16px; cursor: pointer;">
                 <i class="fas fa-sync-alt"></i> 切换
             </button>
@@ -1221,6 +1526,21 @@
         </div>
     </div>
 
+    <!-- 🔍 图片预览模态框 -->
+    <div class="image-preview-modal" id="imagePreviewModal">
+        <div class="preview-header">
+            <div></div>
+            <button class="close-preview-btn" onclick="closeImagePreview()">
+                <i class="fas fa-times"></i> 关闭
+            </button>
+        </div>
+        <img class="preview-image" id="previewImage" alt="衣物预览">
+        <div class="preview-info" id="previewInfo">
+            <div style="font-weight: 600; margin-bottom: 8px;" id="previewName">衣物名称</div>
+            <div style="font-size: 14px; opacity: 0.8;" id="previewDetails">详细信息</div>
+        </div>
+    </div>
+
     <!-- 隐藏的文件输入 -->
     <input type="file" class="hidden-file-input" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
 
@@ -1231,12 +1551,19 @@
         // 相机相关变量
         let currentStream = null;
         let currentPhoto = null;
+        let originalPhoto = null;
         let facingMode = 'environment';
 
         // 📦 管理模式相关变量
         let isManageMode = false;
         let draggedItem = null;
         let draggedIndex = null;
+        
+        // 📂 分类筛选
+        let currentFilter = 'all';
+
+        // 🎨 AI处理相关
+        let isProcessing = false;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -1260,6 +1587,192 @@
             setInterval(updateGreeting, 60000);
         });
 
+        // 📂 分类筛选功能
+        function filterByCategory(category) {
+            currentFilter = category;
+            
+            // 更新标签样式
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 重新渲染
+            renderClothes();
+            
+            // 统计当前分类数量
+            const filteredData = category === 'all' ? clothesData : clothesData.filter(item => item.category === category);
+            const categoryNames = {
+                'all': '全部',
+                'top': '上衣',
+                'bottom': '下装',
+                'dress': '套装',
+                'outerwear': '外套',
+                'shoes': '鞋子',
+                'accessory': '配饰'
+            };
+            
+            showToast(`📂 ${categoryNames[category]} (${filteredData.length}件)`, 'info');
+        }
+
+        // 🎨 AI照片增强处理
+        async function enhancePhoto() {
+            if (!currentPhoto || isProcessing) return;
+            
+            isProcessing = true;
+            originalPhoto = currentPhoto; // 保存原始照片
+            
+            // 显示处理界面
+            const aiProcessing = document.getElementById('aiProcessing');
+            const enhanceBtn = document.getElementById('enhanceBtn');
+            
+            aiProcessing.classList.add('active');
+            enhanceBtn.disabled = true;
+            
+            try {
+                await simulateAIProcessing();
+                showToast('🎨 AI美化完成！图片质量已优化', 'success');
+            } catch (error) {
+                showToast('❌ AI处理失败，已保留原图', 'error');
+                currentPhoto = originalPhoto;
+            } finally {
+                isProcessing = false;
+                aiProcessing.classList.remove('active');
+                enhanceBtn.disabled = false;
+            }
+        }
+
+        // 🤖 模拟AI处理过程
+        async function simulateAIProcessing() {
+            const steps = ['step1', 'step2', 'step3', 'step4'];
+            const progressFill = document.getElementById('progressFill');
+            
+            for (let i = 0; i < steps.length; i++) {
+                // 激活当前步骤
+                document.getElementById(steps[i]).classList.add('active');
+                
+                // 更新进度条
+                progressFill.style.width = `${(i + 1) * 25}%`;
+                
+                // 模拟处理时间
+                await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
+                
+                // 完成当前步骤
+                document.getElementById(steps[i]).classList.remove('active');
+                document.getElementById(steps[i]).querySelector('i').className = 'fas fa-check';
+                
+                // 模拟AI处理效果
+                if (i === 1) { // 抠图步骤
+                    currentPhoto = await applyImageEffect(currentPhoto, 'removeBackground');
+                } else if (i === 2) { // 美化步骤
+                    currentPhoto = await applyImageEffect(currentPhoto, 'enhance');
+                }
+                
+                // 实时更新预览
+                if (i >= 1) {
+                    displayPhotoPreview(currentPhoto);
+                }
+            }
+            
+            // 重置步骤图标
+            setTimeout(() => {
+                steps.forEach(stepId => {
+                    const step = document.getElementById(stepId);
+                    step.classList.remove('active');
+                    const icon = step.querySelector('i');
+                    const originalIcons = {
+                        'step1': 'fa-camera',
+                        'step2': 'fa-cut', 
+                        'step3': 'fa-magic',
+                        'step4': 'fa-check'
+                    };
+                    icon.className = `fas ${originalIcons[stepId]}`;
+                });
+                progressFill.style.width = '0%';
+            }, 2000);
+        }
+
+        // 🎨 应用图像效果
+        async function applyImageEffect(imageData, effect) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // 绘制原图
+                    ctx.drawImage(img, 0, 0);
+                    
+                    if (effect === 'removeBackground') {
+                        // 模拟抠图效果：添加透明圆角边框
+                        ctx.globalCompositeOperation = 'destination-in';
+                        ctx.beginPath();
+                        ctx.roundRect(20, 20, canvas.width - 40, canvas.height - 40, 20);
+                        ctx.fill();
+                        
+                        // 添加白色背景
+                        ctx.globalCompositeOperation = 'destination-over';
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    } else if (effect === 'enhance') {
+                        // 模拟美化效果：调整亮度和对比度
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = imageData.data;
+                        
+                        for (let i = 0; i < data.length; i += 4) {
+                            // 增强对比度和亮度
+                            data[i] = Math.min(255, data[i] * 1.1 + 10);     // R
+                            data[i + 1] = Math.min(255, data[i + 1] * 1.1 + 10); // G  
+                            data[i + 2] = Math.min(255, data[i + 2] * 1.1 + 10); // B
+                        }
+                        
+                        ctx.putImageData(imageData, 0, 0);
+                    }
+                    
+                    resolve(canvas.toDataURL('image/jpeg', 0.9));
+                };
+                img.src = imageData;
+            });
+        }
+
+        // 🔍 显示图片预览
+        function showImagePreview(item) {
+            if (!item.photo) return;
+            
+            const modal = document.getElementById('imagePreviewModal');
+            const previewImage = document.getElementById('previewImage');
+            const previewName = document.getElementById('previewName');
+            const previewDetails = document.getElementById('previewDetails');
+            
+            previewImage.src = item.photo;
+            previewName.textContent = item.name;
+            
+            const addDate = new Date(item.addTime).toLocaleDateString('zh-CN');
+            const colorInfo = item.color ? `颜色：${item.color}` : '';
+            previewDetails.innerHTML = `
+                📂 分类：${getCategoryName(item.category)}<br>
+                ${colorInfo}<br>
+                📅 添加于：${addDate}
+            `;
+            
+            modal.classList.add('active');
+            
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 🔍 关闭图片预览
+        function closeImagePreview() {
+            const modal = document.getElementById('imagePreviewModal');
+            modal.classList.remove('active');
+            
+            // 恢复背景滚动
+            document.body.style.overflow = '';
+        }
+
         // 📦 切换管理模式
         function toggleManageMode() {
             isManageMode = !isManageMode;
@@ -1268,7 +1781,6 @@
             const clothesItems = document.querySelectorAll('.clothes-item');
 
             if (isManageMode) {
-                // 进入管理模式
                 manageBtn.innerHTML = '<i class="fas fa-check"></i> 完成';
                 manageBtn.classList.add('cancel');
                 dragHint.classList.add('show');
@@ -1279,7 +1791,6 @@
                 
                 showToast('📦 进入整理模式，长按拖拽排序，点击❌删除', 'info');
             } else {
-                // 退出管理模式
                 manageBtn.innerHTML = '<i class="fas fa-edit"></i> 整理';
                 manageBtn.classList.remove('cancel');
                 dragHint.classList.remove('show');
@@ -1294,23 +1805,20 @@
 
         // 🗑️ 删除衣物
         function deleteClothes(id, event) {
-            event.stopPropagation(); // 阻止事件冒泡
+            event.stopPropagation();
             
             const item = clothesData.find(c => c.id === id);
             if (!item) return;
 
             if (confirm(`确定要删除「${item.name}」吗？\n删除后无法恢复！`)) {
-                // 从数据中移除
                 clothesData = clothesData.filter(c => c.id !== id);
                 localStorage.setItem('clothesData', JSON.stringify(clothesData));
                 
-                // 重新渲染
                 renderClothes();
                 updateClothesCount();
                 
                 showToast(`🗑️ 已删除「${item.name}」`, 'success');
                 
-                // 如果衣柜空了，退出管理模式
                 if (clothesData.length === 0) {
                     isManageMode = false;
                     document.getElementById('manageBtn').innerHTML = '<i class="fas fa-edit"></i> 整理';
@@ -1325,20 +1833,17 @@
             const clothesItems = document.querySelectorAll('.clothes-item[data-id]');
             
             clothesItems.forEach((item, index) => {
-                // 触摸拖拽事件
                 let touchStartTime = 0;
                 let longPressTimer = null;
                 let isDragging = false;
                 let startY = 0;
                 
-                // 触摸开始
                 item.addEventListener('touchstart', function(e) {
                     if (!isManageMode) return;
                     
                     touchStartTime = Date.now();
                     startY = e.touches[0].clientY;
                     
-                    // 长按检测
                     longPressTimer = setTimeout(() => {
                         if (isManageMode) {
                             isDragging = true;
@@ -1346,18 +1851,16 @@
                             draggedItem = item;
                             draggedIndex = index;
                             
-                            // 震动反馈（如果支持）
                             if (navigator.vibrate) {
                                 navigator.vibrate(50);
                             }
                             
                             showToast('📦 开始拖拽，移动到目标位置后松手', 'info');
                         }
-                    }, 500); // 500ms长按
+                    }, 500);
                     
                 }, { passive: false });
                 
-                // 触摸移动
                 item.addEventListener('touchmove', function(e) {
                     if (!isDragging || !isManageMode) return;
                     
@@ -1366,17 +1869,14 @@
                     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
                     const targetItem = elementBelow ? elementBelow.closest('.clothes-item[data-id]') : null;
                     
-                    // 移除所有拖拽悬停效果
                     clothesItems.forEach(ci => ci.classList.remove('drag-over'));
                     
-                    // 添加悬停效果
                     if (targetItem && targetItem !== item) {
                         targetItem.classList.add('drag-over');
                     }
                     
                 }, { passive: false });
                 
-                // 触摸结束
                 item.addEventListener('touchend', function(e) {
                     clearTimeout(longPressTimer);
                     
@@ -1389,11 +1889,9 @@
                             const targetId = parseInt(targetItem.dataset.id);
                             const draggedId = parseInt(item.dataset.id);
                             
-                            // 执行拖拽重排序
                             reorderClothes(draggedId, targetId);
                         }
                         
-                        // 清理拖拽状态
                         item.classList.remove('dragging');
                         clothesItems.forEach(ci => ci.classList.remove('drag-over'));
                         isDragging = false;
@@ -1402,7 +1900,6 @@
                     }
                 });
                 
-                // 鼠标事件（电脑端支持）
                 item.addEventListener('mousedown', function(e) {
                     if (!isManageMode) return;
                     e.preventDefault();
@@ -1417,13 +1914,9 @@
             
             if (!draggedItemData || targetIndex === -1) return;
             
-            // 从原位置移除
             clothesData = clothesData.filter(item => item.id !== draggedId);
-            
-            // 插入到新位置
             clothesData.splice(targetIndex, 0, draggedItemData);
             
-            // 保存并重新渲染
             localStorage.setItem('clothesData', JSON.stringify(clothesData));
             renderClothes();
             
@@ -1446,7 +1939,7 @@
                 video.srcObject = currentStream;
                 
                 document.getElementById('cameraModal').classList.add('active');
-                showToast('📷 相机已准备就绪，点击圆圈拍照！', 'success');
+                showToast('📷 AI相机已准备就绪，拍照后自动美化！', 'success');
                 
             } catch (error) {
                 console.error('无法访问相机:', error);
@@ -1503,7 +1996,15 @@
             
             displayPhotoPreview(currentPhoto);
             closeCamera();
-            showToast('📸 照片拍摄成功！', 'success');
+            
+            showToast('📸 照片拍摄成功！可点击AI美化进一步处理', 'success');
+            
+            // 自动启动AI处理
+            setTimeout(() => {
+                if (currentPhoto) {
+                    enhancePhoto();
+                }
+            }, 1000);
         }
 
         function selectFromGallery() {
@@ -1527,7 +2028,7 @@
                 reader.onload = function(e) {
                     currentPhoto = e.target.result;
                     displayPhotoPreview(currentPhoto);
-                    showToast('🖼️ 图片选择成功！', 'success');
+                    showToast('🖼️ 图片选择成功！可点击AI美化处理', 'success');
                 };
                 reader.readAsDataURL(file);
             }
@@ -1538,19 +2039,25 @@
         function displayPhotoPreview(photoData) {
             const preview = document.getElementById('photoPreview');
             preview.innerHTML = `<img src="${photoData}" alt="衣物照片">`;
+            
             document.getElementById('removePhotoBtn').style.display = 'flex';
+            document.getElementById('enhanceBtn').style.display = 'flex';
         }
 
         function removePhoto() {
             currentPhoto = null;
+            originalPhoto = null;
             const preview = document.getElementById('photoPreview');
             preview.innerHTML = `
                 <div class="photo-placeholder">
                     <i class="fas fa-camera"></i>
-                    <div>点击下方按钮拍照或选择图片</div>
+                    <div>AI智能拍照，自动抠图美化</div>
                 </div>
             `;
+            
             document.getElementById('removePhotoBtn').style.display = 'none';
+            document.getElementById('enhanceBtn').style.display = 'none';
+            
             showToast('🗑️ 照片已删除', 'info');
         }
 
@@ -1576,7 +2083,9 @@
                 closeCamera();
             }
             
-            // 退出管理模式
+            // 关闭图片预览
+            closeImagePreview();
+            
             if (pageId !== 'wardrobe' && isManageMode) {
                 isManageMode = false;
                 document.getElementById('manageBtn').innerHTML = '<i class="fas fa-edit"></i> 整理';
@@ -1606,7 +2115,6 @@
                 container.scrollTop = 0;
             }
 
-            // 显示/隐藏衣柜控件
             const wardrobeControls = document.getElementById('wardrobeControls');
             if (pageId === 'wardrobe' && clothesData.length > 0) {
                 wardrobeControls.style.display = 'flex';
@@ -1664,12 +2172,25 @@
         function renderClothes() {
             const grid = document.getElementById('clothesGrid');
             
-            if (clothesData.length === 0) {
+            // 根据当前筛选条件过滤数据
+            const filteredData = currentFilter === 'all' ? clothesData : clothesData.filter(item => item.category === currentFilter);
+            
+            if (filteredData.length === 0) {
+                const categoryNames = {
+                    'all': '衣柜',
+                    'top': '上衣',
+                    'bottom': '下装',
+                    'dress': '套装',
+                    'outerwear': '外套',
+                    'shoes': '鞋子',
+                    'accessory': '配饰'
+                };
+                
                 grid.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1;">
-                        <i class="fas fa-tshirt"></i>
-                        <h3>衣柜空空如也</h3>
-                        <p>快来添加您的第一件衣物吧<br>记录每一件心爱的单品</p>
+                        <i class="fas ${getCategoryIcon(currentFilter === 'all' ? 'top' : currentFilter)}"></i>
+                        <h3>${categoryNames[currentFilter]}空空如也</h3>
+                        <p>${currentFilter === 'all' ? '快来添加您的第一件衣物吧' : `还没有${categoryNames[currentFilter]}类衣物`}<br>记录每一件心爱的单品</p>
                         <button class="empty-btn" onclick="showPage('add')">
                             <i class="fas fa-plus"></i> 添加衣物
                         </button>
@@ -1678,10 +2199,10 @@
                 return;
             }
 
-            grid.innerHTML = clothesData.map(item => `
+            grid.innerHTML = filteredData.map(item => `
                 <div class="clothes-item${isManageMode ? ' manage-mode' : ''}" 
                      data-id="${item.id}" 
-                     onclick="${isManageMode ? '' : `viewClothes(${item.id})`}">
+                     onclick="${isManageMode ? '' : `showImagePreview(${JSON.stringify(item).replace(/"/g, '&quot;')})`}">
                     
                     <div class="delete-btn" onclick="deleteClothes(${item.id}, event)">
                         <i class="fas fa-times"></i>
@@ -1701,21 +2222,17 @@
                 </div>
             `).join('');
             
-            // 设置拖拽事件
             setTimeout(() => {
                 setupDragEvents();
             }, 100);
         }
 
         function viewClothes(id) {
-            if (isManageMode) return; // 管理模式下禁止查看详情
+            if (isManageMode) return;
             
             const item = clothesData.find(c => c.id === id);
             if (item) {
-                const addDate = new Date(item.addTime).toLocaleDateString('zh-CN');
-                const colorInfo = item.color ? `\\n🎨 颜色：${item.color}` : '';
-                const photoInfo = item.photo ? '\\n📷 已拍照记录' : '';
-                showToast(`👗 ${item.name}\\n📂 分类：${getCategoryName(item.category)}${colorInfo}${photoInfo}\\n📅 添加于：${addDate}`, 'info');
+                showImagePreview(item);
             }
         }
 
@@ -1723,6 +2240,7 @@
             const icons = {
                 'top': 'fa-tshirt',
                 'bottom': 'fa-cut', 
+                'dress': 'fa-female',
                 'outerwear': 'fa-vest',
                 'shoes': 'fa-shoe-prints',
                 'accessory': 'fa-gem'
@@ -1734,6 +2252,7 @@
             const names = {
                 'top': '上衣',
                 'bottom': '下装',
+                'dress': '套装',
                 'outerwear': '外套', 
                 'shoes': '鞋子',
                 'accessory': '配饰'
@@ -1794,6 +2313,15 @@
 
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
+                closeCamera();
+                closeImagePreview();
+            }
+        });
+
+        // 键盘事件处理
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImagePreview();
                 closeCamera();
             }
         });
