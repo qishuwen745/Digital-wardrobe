@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💗 StyleCloset 我的衣橱</title>
+    <meta name="description" content="专为爱美的您打造的智能电子衣橱管理应用">
+    <meta name="keywords" content="衣橱管理,穿搭搭配,时尚,衣物整理">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💗</text></svg>">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 全局重置和优化 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100vh;
+            width: 100vw;
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            color: #2c3e50;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* 应用容器 */
+        .app-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+            overflow: hidden;
+        }
+
+        /* 顶部导航 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 107, 157, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff6b9d, #ffa8cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        /* 主容器 */
+        .container {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 欢迎卡片 */
+        .welcome-card {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ffa8cc 50%, #c77dff 100%);
+            color: white;
+            padding: 30px 24px;
+            margin: 20px;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .welcome-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-text h1 {
+            font-size: 26px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            flex: 1;
+            background: #ffffff;
+            padding: 20px 16px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid rgba(255, 107, 157, 0.05);
+        }
+
+        .stat-item:active {
+            transform: scale(0.95);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(255, 107, 157, 0.15);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+            background: linear-gradient(45deg, #ff6b9d, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+
+        /* 功能菜单 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 0 20px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 28px 20px;
+            border-radius: 20px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid rgba(255, 107, 157, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .menu-item:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 157, 0.05), transparent);
+            transition: left 0.5s;
+        }
+
+        .menu-item:hover:before {
+            left: 100%;
+        }
+
+        .menu-item:active {
+            transform: scale(0.95);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.15);
+        }
+
+        .menu-icon {
+            width: 54px;
+            height: 54px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            border-radius: 27px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            margin: 0 auto 16px;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+        }
+
+        .menu-icon.secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .menu-icon.accent {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .menu-icon.gradient {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.3);
+        }
+
+        .menu-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+
+        .menu-subtitle {
+            font-size: 12px;
+            color: #7f8c8d;
+            opacity: 0.8;
+        }
+
+        /* 推荐搭配 */
+        .outfit-card {
+            background: #ffffff;
+            padding: 28px;
+            margin: 0 20px 20px;
+            border-radius: 24px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 107, 157, 0.05);
+        }
+
+        .outfit-header {
+            margin-bottom: 24px;
+        }
+
+        .outfit-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+
+        .outfit-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+        }
+
+        .outfit-items {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+        }
+
+        .outfit-item {
+            min-width: 85px;
+            height: 110px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 11px;
+            text-align: center;
+            border: 2px solid rgba(255, 107, 157, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .outfit-item:hover {
+            border-color: rgba(255, 107, 157, 0.3);
+            background: linear-gradient(45deg, #fff, #f8f9fa);
+        }
+
+        .outfit-item i {
+            font-size: 28px;
+            margin-bottom: 6px;
+            color: #ff6b9d;
+            text-shadow: 0 2px 4px rgba(255, 107, 157, 0.2);
+        }
+
+        .try-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+        }
+
+        .try-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        .try-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 107, 157, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 10px 8px;
+            border-radius: 16px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.1);
+            transform: scale(1.05);
+        }
+
+        .nav-item:active {
+            transform: scale(0.9);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item.active i {
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-3px); }
+            80% { transform: translateY(-1px); }
+        }
+
+        /* 页面切换 */
+        .page {
+            display: none;
+            min-height: calc(100vh - 140px);
+            padding: 20px 0;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 衣物网格 */
+        .clothes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 0 20px;
+        }
+
+        .clothes-item {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 107, 157, 0.05);
+        }
+
+        .clothes-item:active {
+            transform: scale(0.98);
+        }
+
+        .clothes-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 40px rgba(255, 107, 157, 0.15);
+        }
+
+        .clothes-image {
+            height: 140px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #ff6b9d;
+            border-bottom: 1px solid rgba(255, 107, 157, 0.05);
+        }
+
+        .clothes-info {
+            padding: 16px;
+        }
+
+        .clothes-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+
+        .clothes-category {
+            font-size: 11px;
+            color: #7f8c8d;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            border: 1px solid #e9ecef;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+            color: #ff6b9d;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 12px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 24px;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+
+        .empty-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(255, 107, 157, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .empty-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+        }
+
+        /* 表单样式 */
+        .form-container {
+            background: #ffffff;
+            margin: 20px;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 107, 157, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #ff6b9d;
+            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+            background: white;
+        }
+
+        .upload-area {
+            border: 2px dashed #e9ecef;
+            border-radius: 16px;
+            padding: 50px 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #fafafa, #f5f5f5);
+        }
+
+        .upload-area:hover {
+            border-color: #ff6b9d;
+            background: linear-gradient(45deg, rgba(255, 107, 157, 0.02), rgba(255, 168, 204, 0.02));
+        }
+
+        .upload-area i {
+            font-size: 40px;
+            color: #bdc3c7;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover i {
+            color: #ff6b9d;
+        }
+
+        /* 提示框 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            right: 20px;
+            background: #ffffff;
+            color: #2c3e50;
+            padding: 18px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-100px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 2000;
+            border: 1px solid #e9ecef;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .toast.info {
+            border-left: 4px solid #4facfe;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+        }
+
+        /* 滚动条优化 */
+        .container::-webkit-scrollbar,
+        .outfit-items::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 响应式优化 */
+        @media (max-width: 380px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .stats-grid {
+                gap: 8px;
+            }
+            
+            .stat-item {
+                padding: 16px 12px;
+            }
+
+            .welcome-card {
+                padding: 24px 20px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .welcome-card {
+                padding: 20px;
+                margin: 16px;
+            }
+            
+            .stat-item {
+                padding: 16px 12px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #ff6b9d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 微信浏览器优化 */
+        body.wechat {
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* 禁止长按选择 */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="header-title">💗 StyleCloset 我的衣橱</div>
+        </header>
+
+        <!-- 主要内容容器 -->
+        <div class="container">
+            
+            <!-- 首页 -->
+            <div class="page active" id="home">
+                <!-- 欢迎卡片 -->
+                <div class="welcome-card">
+                    <div class="welcome-content">
+                        <div class="welcome-text">
+                            <h1 id="greeting">晚上好 🌆</h1>
+                            <p>新的一天，从美美的穿搭开始</p>
+                        </div>
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 统计数据 -->
+                <div class="stats-grid">
+                    <div class="stat-item" onclick="showPage('wardrobe')">
+                        <div class="stat-icon">
+                            <i class="fas fa-tshirt"></i>
+                        </div>
+                        <div class="stat-number" id="clothesCount">0</div>
+                        <div class="stat-label">件衣物</div>
+                    </div>
+                    <div class="stat-item" onclick="showPage('outfits')">
+                        <div class="stat-icon">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">个搭配</div>
+                    </div>
+                    <div class="stat-item" onclick="showToast('💕 收藏功能即将上线，敬请期待！', 'info')">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">个收藏</div>
+                    </div>
+                </div>
+
+                <!-- 今日推荐 -->
+                <div class="outfit-card">
+                    <div class="outfit-header">
+                        <div class="outfit-title">✨ 今日搭配推荐</div>
+                        <span class="outfit-tag">春日清新</span>
+                    </div>
+                    <div class="outfit-items">
+                        <div class="outfit-item">
+                            <i class="fas fa-tshirt"></i>
+                            <span>白T恤</span>
+                        </div>
+                        <div class="outfit-item">
+                            <i class="fas fa-vest"></i>
+                            <span>针织开衫</span>
+                        </div>
+                        <div class="outfit-item">
+                            <i class="fas fa-cut"></i>
+                            <span>牛仔裤</span>
+                        </div>
+                        <div class="outfit-item">
+                            <i class="fas fa-shoe-prints"></i>
+                            <span>小白鞋</span>
+                        </div>
+                        <div class="outfit-item">
+                            <i class="fas fa-gem"></i>
+                            <span>简约项链</span>
+                        </div>
+                    </div>
+                    <button class="try-btn" onclick="showToast('✨ 试穿功能即将上线，敬请期待！', 'info')">
+                        <i class="fas fa-magic"></i> 试穿这套搭配
+                    </button>
+                </div>
+
+                <!-- 功能菜单 -->
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showPage('add')">
+                        <div class="menu-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="menu-title">拍照添加</div>
+                        <div class="menu-subtitle">记录新衣物</div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('🤖 AI智能搭配功能开发中...', 'info')">
+                        <div class="menu-icon secondary">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="menu-title">智能搭配</div>
+                        <div class="menu-subtitle">AI为您推荐</div>
+                    </div>
+                    <div class="menu-item" onclick="showPage('wardrobe')">
+                        <div class="menu-icon accent">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="menu-title">查找衣物</div>
+                        <div class="menu-subtitle">快速查找</div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('🎯 发现功能即将上线，带您探索更多穿搭灵感！', 'info')">
+                        <div class="menu-icon gradient">
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <div class="menu-title">发现搭配</div>
+                        <div class="menu-subtitle">穿搭灵感</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 衣柜页面 -->
+            <div class="page" id="wardrobe">
+                <div class="clothes-grid" id="clothesGrid">
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-tshirt"></i>
+                        <h3>衣柜空空如也</h3>
+                        <p>快来添加您的第一件衣物吧<br>记录每一件心爱的单品</p>
+                        <button class="empty-btn" onclick="showPage('add')">
+                            <i class="fas fa-plus"></i> 添加衣物
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 搭配页面 -->
+            <div class="page" id="outfits">
+                <div class="clothes-grid">
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-palette"></i>
+                        <h3>还没有搭配方案</h3>
+                        <p>创建您的第一个搭配<br>让每天的穿搭都充满惊喜</p>
+                        <button class="empty-btn" onclick="showToast('✨ 搭配功能正在开发中...', 'info')">
+                            <i class="fas fa-plus"></i> 创建搭配
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加页面 -->
+            <div class="page" id="add">
+                <div class="form-container">
+                    <h3 style="margin-bottom: 24px; text-align: center; font-size: 20px; color: #2c3e50;">
+                        📷 添加新衣物
+                    </h3>
+                    
+                    <div class="upload-area" onclick="showToast('📸 相机功能开发中，敬请期待！', 'info')">
+                        <i class="fas fa-camera"></i>
+                        <div style="font-size: 14px; color: #7f8c8d;">点击拍照或选择图片</div>
+                        <div style="font-size: 12px; color: #bdc3c7; margin-top: 4px;">支持 JPG、PNG 格式</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">衣物名称 *</label>
+                        <input type="text" class="form-input" id="clothesName" placeholder="例如：白色圆领T恤">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">选择分类 *</label>
+                        <select class="form-select" id="clothesCategory">
+                            <option value="">请选择分类</option>
+                            <option value="top">👕 上衣 (T恤、衬衫、毛衣等)</option>
+                            <option value="bottom">👖 下装 (裤子、裙子等)</option>
+                            <option value="outerwear">🧥 外套 (夹克、大衣等)</option>
+                            <option value="shoes">👟 鞋子 (运动鞋、高跟鞋等)</option>
+                            <option value="accessory">💍 配饰 (包包、首饰等)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">颜色标签</label>
+                        <input type="text" class="form-input" id="clothesColor" placeholder="例如：白色、黑色、粉色">
+                    </div>
+
+                    <button class="try-btn" onclick="addClothes()">
+                        <i class="fas fa-save"></i> 保存到衣柜
+                    </button>
+                </div>
+            </div>
+
+            <!-- 个人中心页面 -->
+            <div class="page" id="profile">
+                <div class="form-container" style="text-align: center;">
+                    <div class="avatar" style="margin: 0 auto 20px; width: 80px; height: 80px; font-size: 32px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 style="margin-bottom: 8px; color: #2c3e50;">时尚达人</h2>
+                    <p style="color: #7f8c8d; margin-bottom: 20px;">让每天的穿搭都充满惊喜</p>
+                    <div style="display: inline-block; padding: 6px 16px; background: linear-gradient(135deg, #ff6b9d, #ffa8cc); color: white; border-radius: 20px; font-size: 12px;">
+                        StyleCloset 用户
+                    </div>
+                </div>
+
+                <div class="menu-grid">
+                    <div class="menu-item" onclick="showToast('📊 穿搭分析功能开发中...', 'info')">
+                        <div class="menu-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="menu-title">穿搭分析</div>
+                        <div class="menu-subtitle">数据统计</div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('⚙️ 设置功能开发中...', 'info')">
+                        <div class="menu-icon secondary">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="menu-title">个人设置</div>
+                        <div class="menu-subtitle">偏好设置</div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('💡 需要帮助？\\n\\n功能说明：\\n• 首页：查看统计和推荐\\n• 衣柜：管理所有衣物\\n• 添加：记录新衣物\\n• 搭配：创建穿搭方案\\n• 我的：个人中心', 'info')">
+                        <div class="menu-icon accent">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="menu-title">帮助中心</div>
+                        <div class="menu-subtitle">使用帮助</div>
+                    </div>
+                    <div class="menu-item" onclick="showToast('StyleCloset v1.0 💗\\n\\n专为爱美的您打造的电子衣柜\\n\\n✨ 记录每一件心爱的衣物\\n🎨 创建专属穿搭方案\\n🤖 AI智能搭配推荐\\n\\n让每天的穿搭都充满惊喜！', 'info')">
+                        <div class="menu-icon gradient">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="menu-title">关于应用</div>
+                        <div class="menu-subtitle">版本信息</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" onclick="showPage('home')">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </div>
+            <div class="nav-item" onclick="showPage('wardrobe')">
+                <i class="fas fa-tshirt"></i>
+                <span>衣柜</span>
+            </div>
+            <div class="nav-item" onclick="showPage('add')">
+                <i class="fas fa-plus-circle"></i>
+                <span>添加</span>
+            </div>
+            <div class="nav-item" onclick="showPage('outfits')">
+                <i class="fas fa-palette"></i>
+                <span>搭配</span>
+            </div>
+            <div class="nav-item" onclick="showPage('profile')">
+                <i class="fas fa-user-circle"></i>
+                <span>我的</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // 数据存储
+        let clothesData = JSON.parse(localStorage.getItem('clothesData') || '[]');
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateGreeting();
+            updateClothesCount();
+            renderClothes();
+            
+            // 检测微信浏览器
+            if (/MicroMessenger/i.test(navigator.userAgent)) {
+                document.body.classList.add('wechat');
+            }
+            
+            // 禁止页面缩放和默认手势
+            document.addEventListener('touchmove', function(e) {
+                if (e.scale !== 1) { e.preventDefault(); }
+            }, { passive: false });
+            
+            document.addEventListener('gesturestart', function(e) {
+                e.preventDefault();
+            });
+
+            // 防止双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            setInterval(updateGreeting, 60000);
+        });
+
+        // 更新问候语
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            const greetingEl = document.getElementById('greeting');
+            
+            if (hour < 6) {
+                greetingEl.textContent = '深夜好 🌙';
+            } else if (hour < 12) {
+                greetingEl.textContent = '早上好 ☀️';
+            } else if (hour < 18) {
+                greetingEl.textContent = '下午好 🌤';
+            } else {
+                greetingEl.textContent = '晚上好 🌆';
+            }
+        }
+
+        // 页面切换
+        function showPage(pageId) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            document.getElementById(pageId).classList.add('active');
+            
+            // 更新底部导航
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 激活对应导航项
+            const navItems = document.querySelectorAll('.nav-item');
+            const pageOrder = ['home', 'wardrobe', 'add', 'outfits', 'profile'];
+            const index = pageOrder.indexOf(pageId);
+            if (index >= 0 && navItems[index]) {
+                navItems[index].classList.add('active');
+            }
+
+            // 滚动到顶部
+            document.querySelector('.container').scrollTop = 0;
+
+            if (pageId === 'wardrobe') {
+                renderClothes();
+            }
+        }
+
+        // 添加衣物
+        function addClothes() {
+            const name = document.getElementById('clothesName').value.trim();
+            const category = document.getElementById('clothesCategory').value;
+            const color = document.getElementById('clothesColor').value.trim();
+            
+            if (!name) {
+                showToast('请输入衣物名称 📝', 'error');
+                return;
+            }
+            
+            if (!category) {
+                showToast('请选择分类 🏷️', 'error');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                category: category,
+                color: color,
+                addTime: new Date().toISOString()
+            };
+
+            clothesData.push(newItem);
+            localStorage.setItem('clothesData', JSON.stringify(clothesData));
+            
+            // 清空表单
+            document.getElementById('clothesName').value = '';
+            document.getElementById('clothesCategory').value = '';
+            document.getElementById('clothesColor').value = '';
+            
+            updateClothesCount();
+            showToast('添加成功！ ✅', 'success');
+            
+            setTimeout(() => {
+                showPage('wardrobe');
+            }, 1500);
+        }
+
+        // 渲染衣物列表
+        function renderClothes() {
+            const grid = document.getElementById('clothesGrid');
+            
+            if (clothesData.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <i class="fas fa-tshirt"></i>
+                        <h3>衣柜空空如也</h3>
+                        <p>快来添加您的第一件衣物吧<br>记录每一件心爱的单品</p>
+                        <button class="empty-btn" onclick="showPage('add')">
+                            <i class="fas fa-plus"></i> 添加衣物
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = clothesData.map(item => `
+                <div class="clothes-item" onclick="viewClothes(${item.id})">
+                    <div class="clothes-image">
+                        <i class="fas ${getCategoryIcon(item.category)}"></i>
+                    </div>
+                    <div class="clothes-info">
+                        <div class="clothes-name">${item.name}</div>
+                        <span class="clothes-category">${getCategoryName(item.category)}</span>
+                        ${item.color ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${item.color}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 查看衣物详情
+        function viewClothes(id) {
+            const item = clothesData.find(c => c.id === id);
+            if (item) {
+                const addDate = new Date(item.addTime).toLocaleDateString('zh-CN');
+                const colorInfo = item.color ? `\\n🎨 颜色：${item.color}` : '';
+                showToast(`👗 ${item.name}\\n📂 分类：${getCategoryName(item.category)}${colorInfo}\\n📅 添加于：${addDate}`, 'info');
+            }
+        }
+
+        // 获取分类图标
+        function getCategoryIcon(category) {
+            const icons = {
+                'top': 'fa-tshirt',
+                'bottom': 'fa-cut', 
+                'outerwear': 'fa-vest',
+                'shoes': 'fa-shoe-prints',
+                'accessory': 'fa-gem'
+            };
+            return icons[category] || 'fa-tshirt';
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'top': '上衣',
+                'bottom': '下装',
+                'outerwear': '外套', 
+                'shoes': '鞋子',
+                'accessory': '配饰'
+            };
+            return names[category] || category;
+        }
+
+        // 更新衣物数量
+        function updateClothesCount() {
+            const count = clothesData.length;
+            document.getElementById('clothesCount').textContent = count;
+            
+            // 更新统计动画
+            if (count > 0) {
+                document.getElementById('clothesCount').style.animation = 'bounce 0.6s ease';
+                setTimeout(() => {
+                    document.getElementById('clothesCount').style.animation = '';
+                }, 600);
+            }
+        }
+
+        // 显示提示
+        function showToast(message, type = 'info') {
+            // 移除已存在的toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}" style="margin-top: 2px; font-size: 18px;"></i>
+                    <span style="white-space: pre-line; flex: 1; line-height: 1.4;">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+
+            // 根据消息长度调整显示时间
+            const displayTime = message.length > 50 ? 5000 : 3000;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 400);
+            }, displayTime);
+        }
+
+        // 添加一些实用功能
+        
+        // 数据导出
+        function exportData() {
+            const data = {
+                clothes: clothesData,
+                exportTime: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `StyleCloset_备份_${new Date().toLocaleDateString('zh-CN')}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showToast('数据导出成功！ 📦', 'success');
+        }
+
+        // 清空数据（谨慎使用）
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                localStorage.removeItem('clothesData');
+                clothesData = [];
+                updateClothesCount();
+                renderClothes();
+                showToast('数据已清空 🗑️', 'info');
+            }
+        }
+
+        // PWA 相关功能
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                // 这里可以注册 Service Worker，实现离线功能
+            });
+        }
+
+        // 添加到主屏幕提示
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // 可以在这里显示自定义的安装提示
+        });
+    </script>
+</body>
+</html>
