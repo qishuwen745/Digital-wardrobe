@@ -9,46 +9,54 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💗</text></svg>">
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* 保持原有样式... */
+        /* ✅ 修复滚动问题的样式 */
         * {
             margin: 0;
-            padding: 0;
+            padding: 0;a
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ✅ 允许文本选择 */
+        input, textarea, .form-input {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* ✅ 其他元素禁止选择 */
+        body, div, span, button, .nav-item, .menu-item {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
 
-        html, body {
+        html {
+            height: 100%;
+            overflow: hidden; /* 防止双重滚动条 */
+        }
+
+        body {
             height: 100vh;
-            width: 100vw;
             font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
             color: #2c3e50;
             line-height: 1.6;
-            overflow-x: hidden;
-            position: fixed;
-            top: 0;
-            left: 0;
+            overflow: hidden; /* 防止body滚动 */
+            position: relative;
         }
 
         .app-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
             background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-            overflow: hidden;
         }
 
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             height: 60px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -71,14 +79,27 @@
             letter-spacing: 0.5px;
         }
 
+        /* ✅ 修复：主要内容容器 */
         .container {
-            position: absolute;
-            top: 60px;
-            left: 0;
-            right: 0;
-            bottom: 80px;
+            flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
+        }
+
+        .bottom-nav {
+            flex-shrink: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 107, 157, 0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .welcome-card {
@@ -292,6 +313,11 @@
             overflow-x: auto;
             padding-bottom: 8px;
             margin-bottom: 24px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .outfit-items::-webkit-scrollbar {
+            display: none;
         }
 
         .outfit-item {
@@ -334,23 +360,6 @@
             transform: scale(0.98);
         }
 
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 107, 157, 0.1);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-        }
-
         .nav-item {
             display: flex;
             flex-direction: column;
@@ -383,8 +392,7 @@
 
         .page {
             display: none;
-            min-height: calc(100vh - 140px);
-            padding: 20px 0;
+            min-height: 100%;
         }
 
         .page.active {
@@ -401,7 +409,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
-            padding: 0 20px;
+            padding: 0 20px 20px;
         }
 
         .clothes-item {
@@ -499,7 +507,7 @@
 
         .form-container {
             background: #ffffff;
-            margin: 20px;
+            margin: 20px 20px 0;
             border-radius: 24px;
             padding: 28px;
             box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
@@ -624,7 +632,6 @@
             color: white;
         }
 
-        /* 隐藏的文件输入 */
         .hidden-file-input {
             display: none;
         }
@@ -758,10 +765,10 @@
             border: none;
         }
 
-        /* 滚动条隐藏 */
-        .container::-webkit-scrollbar,
-        .outfit-items::-webkit-scrollbar {
-            display: none;
+        /* ✅ 修复：隐藏滚动条但保持功能 */
+        .container::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
         }
 
         /* 响应式优化 */
@@ -775,12 +782,11 @@
             }
         }
 
-        /* 输入框允许选择文本 */
-        input, textarea {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
+        /* ✅ 修复：防止过度缩放但允许正常滚动 */
+        @media screen and (max-width: 768px) {
+            body {
+                -webkit-text-size-adjust: 100%;
+            }
         }
     </style>
 </head>
@@ -1016,19 +1022,19 @@
                         <div class="menu-title">个人设置</div>
                         <div class="menu-subtitle">偏好设置</div>
                     </div>
-                    <div class="menu-item" onclick="showToast('💡 需要帮助？\\n\\n功能说明：\\n• 首页：查看统计和推荐\\n• 衣柜：管理所有衣物\\n• 添加：拍照记录新衣物\\n• 搭配：创建穿搭方案\\n• 我的：个人中心\\n\\n📷 拍照功能：\\n• 支持实时拍照\\n• 支持从相册选择\\n• 自动保存图片', 'info')">
+                    <div class="menu-item" onclick="showToast('💡 需要帮助？\\n\\n功能说明：\\n• 首页：查看统计和推荐\\n• 衣柜：管理所有衣物\\n• 添加：拍照记录新衣物\\n• 搭配：创建穿搭方案\\n• 我的：个人中心\\n\\n📷 拍照功能：\\n• 支持实时拍照\\n• 支持从相册选择\\n• 自动保存图片\\n\\n✅ 滚动问题已修复', 'info')">
                         <div class="menu-icon accent">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div class="menu-title">帮助中心</div>
                         <div class="menu-subtitle">使用帮助</div>
                     </div>
-                    <div class="menu-item" onclick="showToast('StyleCloset v1.1 💗\\n\\n📷 新功能上线！\\n• 实时拍照功能\\n• 相册选择功能\\n• 图片预览和管理\\n\\n专为爱美的您打造的电子衣柜\\n让每天的穿搭都充满惊喜！', 'info')">
+                    <div class="menu-item" onclick="showToast('StyleCloset v1.2 💗\\n\\n🔧 修复更新：\\n• 修复页面滚动问题\\n• 优化触摸体验\\n• 保持相机功能完整\\n\\n📷 相机功能：\\n• 实时拍照功能\\n• 相册选择功能\\n• 图片预览和管理\\n\\n专为爱美的您打造！', 'info')">
                         <div class="menu-icon gradient">
                             <i class="fas fa-info-circle"></i>
                         </div>
                         <div class="menu-title">关于应用</div>
-                        <div class="menu-subtitle">版本信息</div>
+                        <div class="menu-subtitle">v1.2 修复版</div>
                     </div>
                 </div>
             </div>
@@ -1103,17 +1109,9 @@
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 document.body.classList.add('wechat');
             }
-            
-            // 禁止页面缩放
-            document.addEventListener('touchmove', function(e) {
-                if (e.scale !== 1) { e.preventDefault(); }
-            }, { passive: false });
-            
-            document.addEventListener('gesturestart', function(e) {
-                e.preventDefault();
-            });
 
-            // 防止双击缩放
+            // ✅ 修复：移除导致滚动问题的事件监听器
+            // 只保留必要的双击防缩放
             let lastTouchEnd = 0;
             document.addEventListener('touchend', function (event) {
                 let now = (new Date()).getTime();
@@ -1274,34 +1272,6 @@
             showToast('🗑️ 照片已删除', 'info');
         }
 
-        // 💾 压缩图片（可选，减少存储空间）
-        function compressImage(file, maxWidth = 800, quality = 0.8) {
-            return new Promise((resolve) => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const img = new Image();
-                
-                img.onload = function() {
-                    // 计算新尺寸
-                    let { width, height } = img;
-                    if (width > maxWidth) {
-                        height = (height * maxWidth) / width;
-                        width = maxWidth;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    
-                    // 绘制并压缩
-                    ctx.drawImage(img, 0, 0, width, height);
-                    const compressedData = canvas.toDataURL('image/jpeg', quality);
-                    resolve(compressedData);
-                };
-                
-                img.src = URL.createObjectURL(file);
-            });
-        }
-
         // 更新问候语
         function updateGreeting() {
             const hour = new Date().getHours();
@@ -1346,15 +1316,18 @@
                 navItems[index].classList.add('active');
             }
 
-            // 滚动到顶部
-            document.querySelector('.container').scrollTop = 0;
+            // ✅ 修复：滚动到顶部
+            const container = document.querySelector('.container');
+            if (container) {
+                container.scrollTop = 0;
+            }
 
             if (pageId === 'wardrobe') {
                 renderClothes();
             }
         }
 
-        // 💾 添加衣物（增强版）
+        // 💾 添加衣物
         function addClothes() {
             const name = document.getElementById('clothesName').value.trim();
             const category = document.getElementById('clothesCategory').value;
@@ -1396,7 +1369,7 @@
             }, 1500);
         }
 
-        // 🖼️ 渲染衣物列表（增强版）
+        // 🖼️ 渲染衣物列表
         function renderClothes() {
             const grid = document.getElementById('clothesGrid');
             
@@ -1431,7 +1404,7 @@
             `).join('');
         }
 
-        // 👁️ 查看衣物详情（增强版）
+        // 👁️ 查看衣物详情
         function viewClothes(id) {
             const item = clothesData.find(c => c.id === id);
             if (item) {
