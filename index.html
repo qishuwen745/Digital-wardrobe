@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* 基础样式 */
+        /* 保持所有基础样式... */
         * {
             margin: 0;
             padding: 0;
@@ -130,13 +130,82 @@
             box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
         }
 
-        /* 📂 分类筛选标签 */
-        .category-tabs {
+        /* 🌡️ 双层筛选标签：季节 + 分类 */
+        .filter-section {
+            background: white;
+            margin: 20px;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 107, 157, 0.1);
+        }
+
+        .season-filters {
+            margin-bottom: 16px;
+        }
+
+        .filter-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
             display: flex;
-            gap: 8px;
-            padding: 16px 20px 0;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .season-tabs {
+            display: flex;
+            gap: 6px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+        }
+
+        .season-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .season-tab {
+            min-width: auto;
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #7f8c8d;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .season-tab.active {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        .season-tab:active {
+            transform: scale(0.95);
+        }
+
+        /* 📂 分类筛选标签（改进） */
+        .category-filters {
+            border-top: 1px solid #f1f3f4;
+            padding-top: 12px;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
         }
 
         .category-tabs::-webkit-scrollbar {
@@ -145,11 +214,11 @@
 
         .category-tab {
             min-width: auto;
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: #f8f9fa;
             border: 1px solid #e9ecef;
-            border-radius: 20px;
-            font-size: 12px;
+            border-radius: 16px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -157,7 +226,7 @@
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
 
         .category-tab.active {
@@ -169,6 +238,29 @@
 
         .category-tab:active {
             transform: scale(0.95);
+        }
+
+        /* 📊 筛选结果统计 */
+        .filter-result {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0 20px 16px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            display: none;
+        }
+
+        .filter-result.show {
+            display: block;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .clothes-grid {
@@ -193,19 +285,6 @@
 
         .clothes-item:active {
             transform: scale(0.98);
-        }
-
-        .clothes-item.dragging {
-            opacity: 0.8;
-            transform: scale(1.05) rotate(2deg);
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            cursor: grabbing;
-        }
-
-        .clothes-item.drag-over {
-            transform: scale(0.95);
-            box-shadow: 0 0 20px rgba(255, 107, 157, 0.4);
         }
 
         .clothes-item.manage-mode {
@@ -240,11 +319,6 @@
 
         .delete-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.6);
-        }
-
-        .delete-btn:active {
-            transform: scale(0.9);
         }
 
         .manage-mode .delete-btn {
@@ -278,10 +352,6 @@
             transition: transform 0.3s ease;
         }
 
-        .clothes-image:hover img {
-            transform: scale(1.05);
-        }
-
         .clothes-info {
             padding: 16px;
         }
@@ -293,14 +363,29 @@
             margin-bottom: 6px;
         }
 
+        .clothes-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
         .clothes-category {
-            font-size: 11px;
+            font-size: 10px;
             color: #7f8c8d;
             background: #f8f9fa;
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
             border: 1px solid #e9ecef;
+        }
+
+        .clothes-season {
+            font-size: 10px;
+            color: white;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
         }
 
         .empty-state {
@@ -342,28 +427,6 @@
             transition: all 0.3s ease;
         }
 
-        .drag-hint {
-            text-align: center;
-            padding: 16px;
-            margin: 0 20px 20px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 16px;
-            font-size: 14px;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-            display: none;
-        }
-
-        .drag-hint.show {
-            display: block;
-            animation: slideDown 0.4s ease;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         /* 📷 添加衣物表单样式 */
         .form-container {
             background: #ffffff;
@@ -401,6 +464,39 @@
             border-color: #ff6b9d;
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
             background: white;
+        }
+
+        /* 🌡️ 季节选择器（添加衣物时） */
+        .season-selector-add {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .season-option {
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            font-weight: 600;
+            color: #7f8c8d;
+            background: #fafafa;
+        }
+
+        .season-option.selected {
+            border-color: #4facfe;
+            background: rgba(79, 172, 254, 0.1);
+            color: #4facfe;
+        }
+
+        .season-option i {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 4px;
         }
 
         /* 📸 拍照区域样式 */
@@ -662,628 +758,370 @@
             display: none;
         }
 
-        /* 🎨 搭配功能选项卡 */
-        .outfit-tabs {
-            display: flex;
-            background: white;
-            margin: 20px;
-            border-radius: 16px;
-            padding: 4px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(255, 107, 157, 0.1);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .outfit-tabs::-webkit-scrollbar {
-            display: none;
-        }
-
-        .outfit-tab {
-            flex: 1;
-            min-width: 80px;
-            padding: 12px 8px;
-            text-align: center;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #7f8c8d;
-            white-space: nowrap;
-        }
-
-        .outfit-tab.active {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-        }
-
-        .outfit-tab i {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        /* 🎯 智能搭配页面 */
-        .ai-outfit-section {
+        /* 👗 独立搭配界面样式 */
+        .outfit-builder {
             background: #ffffff;
-            margin: 0 20px 20px;
+            margin: 20px;
             border-radius: 24px;
             padding: 24px;
             box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(255, 107, 157, 0.05);
         }
 
-        .ai-header {
+        .builder-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
-        .ai-title {
-            font-size: 18px;
+        .builder-title {
+            font-size: 20px;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 6px;
-            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            margin-bottom: 8px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .ai-subtitle {
-            font-size: 13px;
+        .builder-subtitle {
+            font-size: 14px;
             color: #7f8c8d;
             opacity: 0.8;
         }
 
-        /* 🎨 色彩搭配分析 */
-        .color-analysis-section {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .outfit-workspace {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .color-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .color-palette {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .color-item {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            margin-bottom: 24px;
+            min-height: 200px;
+            border: 2px dashed #bdc3c7;
             position: relative;
-            flex-shrink: 0;
         }
 
-        .color-item.selected {
-            border-color: white;
-            transform: scale(1.15);
-        }
-
-        .color-item.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            font-size: 12px;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .color-analysis-result {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            padding: 14px;
-            margin-top: 12px;
-            font-size: 12px;
-            line-height: 1.4;
-            backdrop-filter: blur(10px);
-        }
-
-        /* 🌡️ 季节搭配推荐 */
-        .season-section {
-            background: linear-gradient(135deg, #fa709a, #fee140);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .season-selector {
+        .workspace-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            height: 100%;
         }
 
-        .season-item {
-            padding: 12px 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .season-item.active {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(1.05);
-        }
-
-        .season-item i {
-            font-size: 16px;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        /* 🎪 风格实验室 */
-        .style-lab-section {
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .style-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .style-item {
-            padding: 14px 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .style-item.selected {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(1.05);
-        }
-
-        .style-item i {
-            font-size: 18px;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        /* 🔄 搭配组合器 */
-        .combo-builder {
+        .outfit-slot {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        .combo-categories {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .combo-category {
-            border: 2px dashed #e9ecef;
             border-radius: 12px;
+            border: 2px dashed #e9ecef;
             padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-height: 100px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            font-size: 11px;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            position: relative;
         }
 
-        .combo-category.has-item {
+        .outfit-slot:hover {
+            border-color: #ff6b9d;
+            background: rgba(255, 107, 157, 0.02);
+        }
+
+        .outfit-slot.has-item {
             border-color: #4f46e5;
             background: rgba(79, 70, 229, 0.05);
+            border-style: solid;
         }
 
-        .combo-category.empty {
-            border-style: dashed;
+        .slot-placeholder {
+            text-align: center;
+            color: #bdc3c7;
+            font-size: 12px;
         }
 
-        .combo-item-preview {
-            width: 50px;
-            height: 50px;
+        .slot-placeholder i {
+            font-size: 28px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .slot-item {
+            text-align: center;
+            width: 100%;
+        }
+
+        .slot-item-image {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             border-radius: 8px;
-            margin-bottom: 6px;
-            background: #f8f9fa;
+            margin: 0 auto 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            color: #bdc3c7;
-        }
-
-        .combo-item-preview.has-image {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
+            font-size: 20px;
         }
 
-        .combo-actions {
+        .slot-item-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .slot-item-details {
+            font-size: 9px;
+            color: #7f8c8d;
+        }
+
+        .slot-remove-btn {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            background: #dc3545;
+            border: 2px solid white;
+            border-radius: 50%;
             display: flex;
-            gap: 8px;
+            align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
+            cursor: pointer;
+            color: white;
+            font-size: 10px;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
         }
 
-        .combo-btn {
-            padding: 10px 16px;
+        .builder-actions {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .builder-btn {
+            flex: 1;
+            padding: 12px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
-            flex: 1;
-            min-width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
-        .combo-btn.primary {
+        .builder-btn.primary {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
+            box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
         }
 
-        .combo-btn.secondary {
+        .builder-btn.secondary {
             background: #f8f9fa;
             color: #6c757d;
             border: 1px solid #e9ecef;
         }
 
-        .combo-btn.success {
+        .builder-btn.success {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
+            box-shadow: 0 4px 16px rgba(40, 167, 69, 0.3);
         }
 
-        /* 📊 搭配分析报告 */
-        .analysis-report {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-            display: none;
-        }
-
-        .analysis-report.show {
-            display: block;
-            animation: slideIn 0.4s ease;
-        }
-
-        .analysis-score {
-            text-align: center;
-            margin-bottom: 16px;
-        }
-
-        .score-circle {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .builder-btn.danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
             color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 auto 10px;
+            box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
         }
 
-        .analysis-items {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        .analysis-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-
-        .analysis-icon {
-            width: 28px;
-            height: 28px;
-            background: linear-gradient(135deg, #ff6b9d, #ffa8cc);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            margin-right: 10px;
-            font-size: 12px;
-        }
-
-        .analysis-text {
-            flex: 1;
-        }
-
-        .analysis-label {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 2px;
-            font-size: 12px;
-        }
-
-        .analysis-desc {
-            font-size: 10px;
-            color: #7f8c8d;
-        }
-
-        /* 🎭 虚拟试衣功能 */
-        .virtual-fitting {
-            background: linear-gradient(135deg, #ff9a9e, #fecfef);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-            text-align: center;
-            display: none;
-        }
-
-        .virtual-fitting.show {
-            display: block;
-            animation: slideIn 0.4s ease;
-        }
-
-        .fitting-avatar {
-            width: 80px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            margin: 0 auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .fitting-controls {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .fitting-btn {
-            padding: 8px 12px;
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* 📚 搭配历史和收藏 */
-        .history-section {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        .history-tabs {
-            display: flex;
-            margin-bottom: 12px;
-        }
-
-        .history-tab {
-            flex: 1;
-            padding: 8px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .history-tab.active {
-            color: #4f46e5;
-            border-bottom-color: #4f46e5;
-        }
-
-        .history-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .history-item {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            font-size: 11px;
-        }
-
-        .history-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        .history-preview {
-            height: 60px;
-            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            border-radius: 8px;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #7f8c8d;
-            font-size: 20px;
-        }
-
-        .history-info {
-            font-size: 10px;
-            color: #6c757d;
-        }
-
-        /* 🎨 高级搭配功能按钮 */
-        .advanced-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .advanced-btn {
-            padding: 14px;
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .advanced-btn:hover {
-            border-color: #4f46e5;
-            background: rgba(79, 70, 229, 0.05);
-        }
-
-        .advanced-btn i {
-            font-size: 20px;
-            color: #4f46e5;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .advanced-btn-title {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 2px;
-            font-size: 12px;
-        }
-
-        .advanced-btn-desc {
-            font-size: 10px;
-            color: #7f8c8d;
-        }
-
-        /* 搭配推荐卡片 */
-        .outfit-card {
+        /* 🎯 搭配预览区 */
+        .outfit-preview {
             background: white;
             border-radius: 16px;
             padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            display: none;
         }
 
-        .outfit-header {
+        .outfit-preview.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        .preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
 
-        .outfit-title {
+        .preview-title {
             font-size: 14px;
             font-weight: 600;
             color: #2c3e50;
         }
 
-        .outfit-score {
+        .preview-score {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
             padding: 4px 8px;
             border-radius: 12px;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
         }
 
-        .outfit-items {
+        .preview-items {
             display: flex;
             gap: 8px;
+            justify-content: center;
             margin-bottom: 12px;
-            overflow-x: auto;
         }
 
-        .outfit-item {
-            min-width: 60px;
-            height: 80px;
+        .preview-item {
+            width: 50px;
+            height: 70px;
             background: #f8f9fa;
-            border-radius: 12px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 9px;
             text-align: center;
             border: 1px solid #e9ecef;
         }
 
-        .outfit-item i {
-            font-size: 20px;
+        .preview-item i {
+            font-size: 16px;
             margin-bottom: 4px;
             color: #4f46e5;
         }
 
-        .outfit-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .outfit-btn {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #e9ecef;
+        .preview-analysis {
             background: #f8f9fa;
             border-radius: 8px;
+            padding: 10px;
             font-size: 11px;
+            color: #6c757d;
+            line-height: 1.4;
+        }
+
+        /* 衣物选择器弹窗 */
+        .clothes-selector {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: flex-end;
+        }
+
+        .clothes-selector.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .selector-panel {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 70vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .selector-title {
+            font-size: 16px;
             font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .selector-close {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            font-size: 18px;
             cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
             transition: all 0.3s ease;
         }
 
-        .outfit-btn.primary {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: white;
-            border: none;
+        .selector-close:hover {
+            background: #f8f9fa;
+        }
+
+        .selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .selector-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .selector-item:hover {
+            background: rgba(79, 70, 229, 0.05);
+            border-color: #4f46e5;
+        }
+
+        .selector-item-image {
+            height: 60px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #ff6b9d;
+        }
+
+        .selector-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .selector-item-name {
+            font-size: 11px;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: center;
         }
 
         /* 保持所有其他样式... */
@@ -1506,14 +1344,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .outfit-content {
-            display: none;
-        }
-
-        .outfit-content.active {
-            display: block;
-        }
-
         .toast {
             position: fixed;
             top: 80px;
@@ -1568,38 +1398,25 @@
                 flex: none;
             }
 
-            .category-tabs {
-                padding: 12px 16px 0;
+            .season-tabs, .category-tabs {
+                gap: 4px;
             }
             
-            .category-tab {
-                font-size: 11px;
-                padding: 6px 12px;
+            .season-tab, .category-tab {
+                font-size: 10px;
+                padding: 4px 8px;
             }
 
-            .style-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .combo-categories {
-                grid-template-columns: 1fr;
-            }
-            
-            .advanced-actions {
+            .workspace-grid {
                 grid-template-columns: 1fr;
             }
 
-            .season-selector {
-                grid-template-columns: 1fr;
+            .builder-actions {
+                flex-direction: column;
             }
 
-            .outfit-tabs {
-                margin: 16px;
-            }
-
-            .ai-outfit-section {
-                margin: 0 16px 16px;
-                padding: 20px;
+            .selector-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -1723,44 +1540,79 @@
                 </div>
             </div>
 
-            <!-- 📦 完整衣柜页面 -->
+            <!-- 📦 增强版衣柜页面 -->
             <div class="page" id="wardrobe">
-                <!-- 📂 分类筛选标签 -->
-                <div class="category-tabs">
-                    <div class="category-tab active" onclick="filterByCategory('all')">
-                        <i class="fas fa-th-large"></i>
-                        全部
+                <!-- 🌡️ 双层筛选器 -->
+                <div class="filter-section">
+                    <!-- 季节筛选 -->
+                    <div class="season-filters">
+                        <div class="filter-title">
+                            <i class="fas fa-leaf"></i>
+                            季节筛选
+                        </div>
+                        <div class="season-tabs">
+                            <div class="season-tab active" onclick="filterBySeason('all')">
+                                <i class="fas fa-globe"></i>
+                                全部
+                            </div>
+                            <div class="season-tab" onclick="filterBySeason('spring-autumn')">
+                                <i class="fas fa-leaf"></i>
+                                春秋装
+                            </div>
+                            <div class="season-tab" onclick="filterBySeason('summer')">
+                                <i class="fas fa-sun"></i>
+                                夏装
+                            </div>
+                            <div class="season-tab" onclick="filterBySeason('winter')">
+                                <i class="fas fa-snowflake"></i>
+                                冬装
+                            </div>
+                        </div>
                     </div>
-                    <div class="category-tab" onclick="filterByCategory('top')">
-                        <i class="fas fa-tshirt"></i>
-                        上衣
-                    </div>
-                    <div class="category-tab" onclick="filterByCategory('bottom')">
-                        <i class="fas fa-cut"></i>
-                        下装
-                    </div>
-                    <div class="category-tab" onclick="filterByCategory('dress')">
-                        <i class="fas fa-female"></i>
-                        套装
-                    </div>
-                    <div class="category-tab" onclick="filterByCategory('outerwear')">
-                        <i class="fas fa-vest"></i>
-                        外套
-                    </div>
-                    <div class="category-tab" onclick="filterByCategory('shoes')">
-                        <i class="fas fa-shoe-prints"></i>
-                        鞋子
-                    </div>
-                    <div class="category-tab" onclick="filterByCategory('accessory')">
-                        <i class="fas fa-gem"></i>
-                        配饰
+
+                    <!-- 分类筛选 -->
+                    <div class="category-filters">
+                        <div class="filter-title">
+                            <i class="fas fa-tags"></i>
+                            分类筛选
+                        </div>
+                        <div class="category-tabs">
+                            <div class="category-tab active" onclick="filterByCategory('all')">
+                                <i class="fas fa-th-large"></i>
+                                全部
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('top')">
+                                <i class="fas fa-tshirt"></i>
+                                上衣
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('bottom')">
+                                <i class="fas fa-cut"></i>
+                                下装
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('dress')">
+                                <i class="fas fa-female"></i>
+                                套装
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('outerwear')">
+                                <i class="fas fa-vest"></i>
+                                外套
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('shoes')">
+                                <i class="fas fa-shoe-prints"></i>
+                                鞋子
+                            </div>
+                            <div class="category-tab" onclick="filterByCategory('accessory')">
+                                <i class="fas fa-gem"></i>
+                                配饰
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- 拖拽提示 -->
-                <div class="drag-hint" id="dragHint">
-                    <i class="fas fa-hand-paper"></i>
-                    📦 整理模式：长按拖拽排序，点击红色按钮删除
+
+                <!-- 📊 筛选结果统计 -->
+                <div class="filter-result" id="filterResult">
+                    <i class="fas fa-filter"></i>
+                    找到 <strong id="filterCount">0</strong> 件衣物
                 </div>
                 
                 <div class="clothes-grid" id="clothesGrid">
@@ -1775,7 +1627,7 @@
                 </div>
             </div>
 
-            <!-- 📷 完整添加衣物页面 -->
+            <!-- 📷 增强版添加衣物页面 -->
             <div class="page" id="add">
                 <div class="form-container">
                     <h3 style="margin-bottom: 24px; text-align: center; font-size: 20px; color: #2c3e50;">
@@ -1857,6 +1709,29 @@
                         </select>
                     </div>
 
+                    <!-- 🌡️ 季节选择 -->
+                    <div class="form-group">
+                        <label class="form-label">适用季节 *</label>
+                        <div class="season-selector-add">
+                            <div class="season-option" data-season="spring-autumn" onclick="selectSeasonForAdd('spring-autumn')">
+                                <i class="fas fa-leaf"></i>
+                                <span>春秋装</span>
+                            </div>
+                            <div class="season-option" data-season="summer" onclick="selectSeasonForAdd('summer')">
+                                <i class="fas fa-sun"></i>
+                                <span>夏装</span>
+                            </div>
+                            <div class="season-option" data-season="winter" onclick="selectSeasonForAdd('winter')">
+                                <i class="fas fa-snowflake"></i>
+                                <span>冬装</span>
+                            </div>
+                            <div class="season-option" data-season="all" onclick="selectSeasonForAdd('all')">
+                                <i class="fas fa-globe"></i>
+                                <span>四季通用</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-label">颜色标签</label>
                         <input type="text" class="form-input" id="clothesColor" placeholder="例如：白色、黑色、粉色">
@@ -1878,307 +1753,77 @@
                 </div>
             </div>
 
-            <!-- 🌟 完整超级搭配功能页面 -->
+            <!-- 👗 独立搭配界面 -->
             <div class="page" id="outfits">
-                <!-- 搭配功能选项卡 -->
-                <div class="outfit-tabs">
-                    <div class="outfit-tab active" onclick="switchOutfitTab('ai')">
-                        <i class="fas fa-robot"></i>
-                        <span>AI搭配</span>
+                <div class="outfit-builder">
+                    <div class="builder-header">
+                        <div class="builder-title">👗 搭配工作台</div>
+                        <div class="builder-subtitle">拖拽衣物到工作区，创建完美搭配</div>
                     </div>
-                    <div class="outfit-tab" onclick="switchOutfitTab('color')">
-                        <i class="fas fa-palette"></i>
-                        <span>色彩</span>
-                    </div>
-                    <div class="outfit-tab" onclick="switchOutfitTab('season')">
-                        <i class="fas fa-leaf"></i>
-                        <span>季节</span>
-                    </div>
-                    <div class="outfit-tab" onclick="switchOutfitTab('style')">
-                        <i class="fas fa-star"></i>
-                        <span>风格</span>
-                    </div>
-                    <div class="outfit-tab" onclick="switchOutfitTab('combo')">
-                        <i class="fas fa-puzzle-piece"></i>
-                        <span>组合</span>
-                    </div>
-                </div>
 
-                <!-- 🤖 AI智能搭配 -->
-                <div class="outfit-content active" id="ai-tab">
-                    <div class="ai-outfit-section">
-                        <div class="ai-header">
-                            <div class="ai-title">🤖 AI智能搭配师</div>
-                            <div class="ai-subtitle">基于您的衣橱，为您推荐完美搭配</div>
-                        </div>
-
-                        <!-- 高级搭配功能 -->
-                        <div class="advanced-actions">
-                            <div class="advanced-btn" onclick="generateSmartOutfit()">
-                                <i class="fas fa-brain"></i>
-                                <div class="advanced-btn-title">智能推荐</div>
-                                <div class="advanced-btn-desc">AI分析生成搭配</div>
-                            </div>
-                            <div class="advanced-btn" onclick="randomOutfit()">
-                                <i class="fas fa-dice"></i>
-                                <div class="advanced-btn-title">随机搭配</div>
-                                <div class="advanced-btn-desc">惊喜搭配组合</div>
-                            </div>
-                            <div class="advanced-btn" onclick="showAnalysisReport()">
-                                <i class="fas fa-chart-line"></i>
-                                <div class="advanced-btn-title">搭配分析</div>
-                                <div class="advanced-btn-desc">专业搭配建议</div>
-                            </div>
-                            <div class="advanced-btn" onclick="showVirtualFitting()">
-                                <i class="fas fa-user-circle"></i>
-                                <div class="advanced-btn-title">虚拟试衣</div>
-                                <div class="advanced-btn-desc">3D试衣效果</div>
-                            </div>
-                        </div>
-
-                        <!-- 智能推荐结果 -->
-                        <div id="aiRecommendations"></div>
-
-                        <!-- 搭配历史和收藏 -->
-                        <div class="history-section">
-                            <div class="history-tabs">
-                                <div class="history-tab active" onclick="switchHistoryTab('recent')">最近搭配</div>
-                                <div class="history-tab" onclick="switchHistoryTab('favorite')">我的收藏</div>
-                                <div class="history-tab" onclick="switchHistoryTab('popular')">热门搭配</div>
-                            </div>
-                            <div class="history-grid" id="historyGrid">
-                                <!-- 搭配历史项目将在这里动态生成 -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 🎨 色彩搭配分析 -->
-                <div class="outfit-content" id="color-tab">
-                    <div class="ai-outfit-section">
-                        <div class="color-analysis-section">
-                            <div class="color-title">
-                                <i class="fas fa-palette"></i>
-                                色彩搭配分析
-                            </div>
-                            <div style="margin-bottom: 12px; font-size: 12px; opacity: 0.9;">
-                                选择主色调，AI为您分析最佳配色方案
-                            </div>
-                            <div class="color-palette" id="colorPalette">
-                                <div class="color-item" data-color="red" style="background: #ff6b9d;" onclick="selectColor('red')"></div>
-                                <div class="color-item" data-color="blue" style="background: #4facfe;" onclick="selectColor('blue')"></div>
-                                <div class="color-item" data-color="green" style="background: #51cf66;" onclick="selectColor('green')"></div>
-                                <div class="color-item" data-color="purple" style="background: #7c3aed;" onclick="selectColor('purple')"></div>
-                                <div class="color-item" data-color="orange" style="background: #ff922b;" onclick="selectColor('orange')"></div>
-                                <div class="color-item" data-color="black" style="background: #343a40;" onclick="selectColor('black')"></div>
-                                <div class="color-item" data-color="white" style="background: #ffffff; border-color: #dee2e6;" onclick="selectColor('white')"></div>
-                            </div>
-                            <div class="color-analysis-result" id="colorAnalysisResult">
-                                👆 请选择一个主色调，AI将为您分析最佳搭配色彩
-                            </div>
-                        </div>
-
-                        <!-- 基于颜色的搭配推荐 -->
-                        <div id="colorBasedOutfits"></div>
-                    </div>
-                </div>
-
-                <!-- 🌡️ 季节搭配 -->
-                <div class="outfit-content" id="season-tab">
-                    <div class="ai-outfit-section">
-                        <div class="season-section">
-                            <div class="color-title">
-                                <i class="fas fa-leaf"></i>
-                                季节搭配推荐
-                            </div>
-                            <div style="margin-bottom: 12px; font-size: 12px; opacity: 0.9;">
-                                选择当前季节，获取最适合的搭配建议
-                            </div>
-                            <div class="season-selector">
-                                <div class="season-item active" data-season="spring" onclick="selectSeason('spring')">
-                                    <i class="fas fa-seedling"></i>
-                                    <span>春季</span>
-                                </div>
-                                <div class="season-item" data-season="summer" onclick="selectSeason('summer')">
-                                    <i class="fas fa-sun"></i>
-                                    <span>夏季</span>
-                                </div>
-                                <div class="season-item" data-season="autumn" onclick="selectSeason('autumn')">
-                                    <i class="fas fa-leaf"></i>
-                                    <span>秋季</span>
-                                </div>
-                                <div class="season-item" data-season="winter" onclick="selectSeason('winter')">
-                                    <i class="fas fa-snowflake"></i>
-                                    <span>冬季</span>
-                                </div>
-                            </div>
-                            <div class="color-analysis-result" id="seasonAnalysisResult">
-                                🌸 春季搭配建议：选择清新明亮的色彩，薄外套搭配轻盈单品，展现活力与生机
-                            </div>
-                        </div>
-
-                        <!-- 季节性搭配推荐 -->
-                        <div id="seasonalOutfits"></div>
-                    </div>
-                </div>
-
-                <!-- 🎪 风格实验室 -->
-                <div class="outfit-content" id="style-tab">
-                    <div class="ai-outfit-section">
-                        <div class="style-lab-section">
-                            <div class="color-title">
-                                <i class="fas fa-star"></i>
-                                风格实验室
-                            </div>
-                            <div style="margin-bottom: 12px; font-size: 12px; opacity: 0.9;">
-                                尝试不同风格，发现更多可能性
-                            </div>
-                            <div class="style-grid">
-                                <div class="style-item" data-style="casual" onclick="selectStyle('casual')">
-                                    <i class="fas fa-coffee"></i>
-                                    <span>休闲风</span>
-                                </div>
-                                <div class="style-item" data-style="business" onclick="selectStyle('business')">
-                                    <i class="fas fa-briefcase"></i>
-                                    <span>商务风</span>
-                                </div>
-                                <div class="style-item" data-style="sweet" onclick="selectStyle('sweet')">
-                                    <i class="fas fa-heart"></i>
-                                    <span>甜美风</span>
-                                </div>
-                                <div class="style-item" data-style="cool" onclick="selectStyle('cool')">
-                                    <i class="fas fa-bolt"></i>
-                                    <span>酷帅风</span>
-                                </div>
-                                <div class="style-item" data-style="elegant" onclick="selectStyle('elegant')">
-                                    <i class="fas fa-crown"></i>
-                                    <span>优雅风</span>
-                                </div>
-                                <div class="style-item" data-style="vintage" onclick="selectStyle('vintage')">
-                                    <i class="fas fa-record-vinyl"></i>
-                                    <span>复古风</span>
-                                </div>
-                            </div>
-                            <div class="color-analysis-result" id="styleAnalysisResult">
-                                🎨 选择一种风格，AI将为您生成对应的搭配方案
-                            </div>
-                        </div>
-
-                        <!-- 风格搭配展示 -->
-                        <div id="styleOutfitDisplay"></div>
-                    </div>
-                </div>
-
-                <!-- 🔄 搭配组合器 -->
-                <div class="outfit-content" id="combo-tab">
-                    <div class="ai-outfit-section">
-                        <div class="combo-builder">
-                            <h3 style="margin-bottom: 16px; color: #2c3e50; text-align: center; font-size: 16px;">
-                                <i class="fas fa-puzzle-piece"></i> 搭配组合器
-                            </h3>
-                            <div style="margin-bottom: 16px; font-size: 12px; color: #7f8c8d; text-align: center;">
-                                点击选择衣物，创建您的专属搭配
-                            </div>
-
-                            <div class="combo-categories">
-                                <div class="combo-category empty" data-category="top" onclick="selectClothesForCombo('top')">
-                                    <div class="combo-item-preview">
-                                        <i class="fas fa-tshirt"></i>
-                                    </div>
+                    <!-- 🎯 搭配工作区 -->
+                    <div class="outfit-workspace">
+                        <div class="workspace-grid">
+                            <!-- 上衣槽 -->
+                            <div class="outfit-slot" data-slot="top" onclick="selectClothesForSlot('top')">
+                                <div class="slot-placeholder">
+                                    <i class="fas fa-tshirt"></i>
                                     <div>选择上衣</div>
+                                    <div style="font-size: 10px; margin-top: 4px; opacity: 0.7;">点击添加</div>
                                 </div>
-                                <div class="combo-category empty" data-category="bottom" onclick="selectClothesForCombo('bottom')">
-                                    <div class="combo-item-preview">
-                                        <i class="fas fa-cut"></i>
-                                    </div>
+                            </div>
+
+                            <!-- 下装槽 -->
+                            <div class="outfit-slot" data-slot="bottom" onclick="selectClothesForSlot('bottom')">
+                                <div class="slot-placeholder">
+                                    <i class="fas fa-cut"></i>
                                     <div>选择下装</div>
-                                </div>
-                                <div class="combo-category empty" data-category="shoes" onclick="selectClothesForCombo('shoes')">
-                                    <div class="combo-item-preview">
-                                        <i class="fas fa-shoe-prints"></i>
-                                    </div>
-                                    <div>选择鞋子</div>
-                                </div>
-                                <div class="combo-category empty" data-category="accessory" onclick="selectClothesForCombo('accessory')">
-                                    <div class="combo-item-preview">
-                                        <i class="fas fa-gem"></i>
-                                    </div>
-                                    <div>选择配饰</div>
-                                </div>
-                            </div>
-
-                            <div class="combo-actions">
-                                <button class="combo-btn secondary" onclick="clearCombo()">
-                                    <i class="fas fa-trash"></i> 清空
-                                </button>
-                                <button class="combo-btn primary" onclick="analyzeCombo()">
-                                    <i class="fas fa-search"></i> 分析
-                                </button>
-                                <button class="combo-btn success" onclick="saveCombo()">
-                                    <i class="fas fa-save"></i> 保存
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 搭配分析报告 -->
-                        <div class="analysis-report" id="analysisReport">
-                            <h3 style="margin-bottom: 16px; color: #2c3e50; text-align: center; font-size: 16px;">搭配分析报告</h3>
-                            <div class="analysis-score">
-                                <div class="score-circle" id="scoreCircle">85</div>
-                                <div style="font-weight: 600; color: #2c3e50; font-size: 12px;">搭配评分</div>
-                            </div>
-                            <div class="analysis-items">
-                                <div class="analysis-item">
-                                    <div class="analysis-icon">
-                                        <i class="fas fa-palette"></i>
-                                    </div>
-                                    <div class="analysis-text">
-                                        <div class="analysis-label">色彩搭配</div>
-                                        <div class="analysis-desc">色彩协调度高，整体和谐统一</div>
-                                    </div>
-                                </div>
-                                <div class="analysis-item">
-                                    <div class="analysis-icon">
-                                        <i class="fas fa-balance-scale"></i>
-                                    </div>
-                                    <div class="analysis-text">
-                                        <div class="analysis-label">比例平衡</div>
-                                        <div class="analysis-desc">上下比例协调，视觉效果良好</div>
-                                    </div>
-                                </div>
-                                <div class="analysis-item">
-                                    <div class="analysis-icon">
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <div class="analysis-text">
-                                        <div class="analysis-label">风格一致</div>
-                                        <div class="analysis-desc">整体风格统一，搭配得当</div>
-                                    </div>
+                                    <div style="font-size: 10px; margin-top: 4px; opacity: 0.7;">点击添加</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 虚拟试衣 -->
-                        <div class="virtual-fitting" id="virtualFitting">
-                            <h3 style="margin-bottom: 12px; font-size: 16px;">🎭 虚拟试衣</h3>
-                            <div class="fitting-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div style="margin-bottom: 12px; font-size: 12px; opacity: 0.9;">
-                                3D试衣效果预览
-                            </div>
-                            <div class="fitting-controls">
-                                <button class="fitting-btn" onclick="rotateFitting('left')">
-                                    <i class="fas fa-undo"></i> 左转
-                                </button>
-                                <button class="fitting-btn" onclick="takeScreenshot()">
-                                    <i class="fas fa-camera"></i> 截图
-                                </button>
-                                <button class="fitting-btn" onclick="rotateFitting('right')">
-                                    <i class="fas fa-redo"></i> 右转
-                                </button>
-                            </div>
+                        <!-- 工作区提示 -->
+                        <div style="position: absolute; top: 10px; right: 10px; color: #bdc3c7; font-size: 10px;">
+                            <i class="fas fa-info-circle"></i> 点击区域选择衣物
                         </div>
+                    </div>
+
+                    <!-- 🎛️ 搭配操作 -->
+                    <div class="builder-actions">
+                        <button class="builder-btn secondary" onclick="clearOutfitBuilder()">
+                            <i class="fas fa-trash"></i> 清空
+                        </button>
+                        <button class="builder-btn primary" onclick="analyzeOutfit()">
+                            <i class="fas fa-search"></i> 分析搭配
+                        </button>
+                        <button class="builder-btn success" onclick="saveOutfit()">
+                            <i class="fas fa-save"></i> 保存搭配
+                        </button>
+                    </div>
+
+                    <!-- 🎯 搭配预览 -->
+                    <div class="outfit-preview" id="outfitPreview">
+                        <div class="preview-header">
+                            <div class="preview-title">搭配预览</div>
+                            <div class="preview-score" id="outfitScore">85分</div>
+                        </div>
+                        <div class="preview-items" id="previewItems">
+                            <!-- 搭配项目将在这里动态生成 -->
+                        </div>
+                        <div class="preview-analysis" id="previewAnalysis">
+                            <strong>AI分析：</strong>这套搭配色彩协调，风格统一，适合日常休闲场合。建议搭配简约配饰提升整体效果。
+                        </div>
+                    </div>
+
+                    <!-- 🎨 快速推荐 -->
+                    <div class="builder-actions">
+                        <button class="builder-btn primary" onclick="generateQuickOutfit()">
+                            <i class="fas fa-magic"></i> 快速推荐
+                        </button>
+                        <button class="builder-btn secondary" onclick="randomOutfitBuilder()">
+                            <i class="fas fa-dice"></i> 随机搭配
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2211,7 +1856,7 @@
             </div>
             <div class="nav-item" onclick="showPage('outfits')">
                 <i class="fas fa-magic"></i>
-                <span>超级搭配</span>
+                <span>搭配</span>
             </div>
             <div class="nav-item" onclick="showPage('profile')">
                 <i class="fas fa-user-circle"></i>
@@ -2242,6 +1887,21 @@
         </div>
     </div>
 
+    <!-- 👗 衣物选择器弹窗 -->
+    <div class="clothes-selector" id="clothesSelector">
+        <div class="selector-panel">
+            <div class="selector-header">
+                <div class="selector-title" id="selectorTitle">选择上衣</div>
+                <button class="selector-close" onclick="closeCothesSelector()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="selector-grid" id="selectorGrid">
+                <!-- 衣物选项将在这里动态生成 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 隐藏的文件输入 -->
     <input type="file" class="hidden-file-input" id="fileInput" accept="image/*" onchange="handleFileSelect(event)">
 
@@ -2259,56 +1919,23 @@
         
         // 📦 管理模式相关变量
         let isManageMode = false;
-        let draggedItem = null;
-        let draggedIndex = null;
         
-        // 📂 分类筛选
-        let currentFilter = 'all';
+        // 📂 筛选相关变量
+        let currentSeasonFilter = 'all';
+        let currentCategoryFilter = 'all';
         
         // 🎨 AI处理相关
         let isProcessing = false;
 
-        // 当前选中的搭配参数
-        let selectedColor = null;
-        let selectedSeason = 'spring';
-        let selectedStyle = null;
-        let currentOutfitTab = 'ai';
-        
-        // 搭配组合器数据
-        let currentCombo = {
+        // 👗 搭配工作台相关
+        let currentOutfit = {
             top: null,
-            bottom: null,
-            shoes: null,
-            accessory: null
+            bottom: null
         };
-
-        // 模拟衣物数据
-        const mockClothes = {
-            top: [
-                {id: 1, name: '白色T恤', color: '白色', style: 'casual', icon: 'fa-tshirt'},
-                {id: 2, name: '蓝色衬衫', color: '蓝色', style: 'business', icon: 'fa-user-tie'},
-                {id: 3, name: '粉色毛衣', color: '粉色', style: 'sweet', icon: 'fa-tshirt'},
-                {id: 4, name: '黑色T恤', color: '黑色', style: 'cool', icon: 'fa-tshirt'}
-            ],
-            bottom: [
-                {id: 5, name: '黑色裤子', color: '黑色', style: 'business', icon: 'fa-cut'},
-                {id: 6, name: '牛仔裤', color: '蓝色', style: 'casual', icon: 'fa-cut'},
-                {id: 7, name: '白色裙子', color: '白色', style: 'sweet', icon: 'fa-female'},
-                {id: 8, name: '破洞牛仔裤', color: '蓝色', style: 'cool', icon: 'fa-cut'}
-            ],
-            shoes: [
-                {id: 9, name: '小白鞋', color: '白色', style: 'casual', icon: 'fa-shoe-prints'},
-                {id: 10, name: '黑色皮鞋', color: '黑色', style: 'business', icon: 'fa-shoe-prints'},
-                {id: 11, name: '高跟鞋', color: '粉色', style: 'elegant', icon: 'fa-shoe-prints'},
-                {id: 12, name: '马丁靴', color: '黑色', style: 'cool', icon: 'fa-shoe-prints'}
-            ],
-            accessory: [
-                {id: 13, name: '银色项链', color: '银色', style: 'elegant', icon: 'fa-gem'},
-                {id: 14, name: '帆布包', color: '米色', style: 'casual', icon: 'fa-shopping-bag'},
-                {id: 15, name: '手表', color: '黑色', style: 'business', icon: 'fa-clock'},
-                {id: 16, name: '棒球帽', color: '黑色', style: 'cool', icon: 'fa-hat-cowboy'}
-            ]
-        };
+        let currentSelectingSlot = null;
+        
+        // 🌡️ 添加衣物时的季节选择
+        let selectedSeasonForAdd = null;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -2316,20 +1943,11 @@
             updateClothesCount();
             updateOutfitCount();
             renderClothes();
-            loadHistoryData();
             
             // 添加一些示例数据
             if (clothesData.length === 0) {
                 addSampleClothes();
             }
-
-            // 添加示例搭配数据
-            if (outfitHistory.length === 0) {
-                addSampleOutfits();
-            }
-            
-            // 设置默认选中的季节
-            selectSeason('spring');
             
             if (/MicroMessenger/i.test(navigator.userAgent)) {
                 document.body.classList.add('wechat');
@@ -2347,13 +1965,14 @@
             setInterval(updateGreeting, 60000);
         });
 
-        // 添加示例衣物数据
+        // 添加示例衣物数据（增加季节属性）
         function addSampleClothes() {
             const sampleClothes = [
                 {
                     id: Date.now() + 1,
                     name: '白色基础T恤',
                     category: 'top',
+                    season: 'summer',
                     color: '白色',
                     brand: 'UNIQLO',
                     note: '百搭基础款，夏季必备',
@@ -2364,6 +1983,7 @@
                     id: Date.now() + 2,
                     name: '深蓝色牛仔裤',
                     category: 'bottom',
+                    season: 'all',
                     color: '深蓝色',
                     brand: 'ZARA',
                     note: '修身版型，显瘦效果好',
@@ -2374,6 +1994,7 @@
                     id: Date.now() + 3,
                     name: '小白鞋',
                     category: 'shoes',
+                    season: 'all',
                     color: '白色',
                     brand: 'Adidas',
                     note: '舒适透气，日常搭配',
@@ -2384,6 +2005,7 @@
                     id: Date.now() + 4,
                     name: '针织开衫',
                     category: 'outerwear',
+                    season: 'spring-autumn',
                     color: '米色',
                     brand: 'H&M',
                     note: '春秋必备外套',
@@ -2392,11 +2014,23 @@
                 },
                 {
                     id: Date.now() + 5,
-                    name: '简约手表',
-                    category: 'accessory',
-                    color: '银色',
-                    brand: 'DW',
-                    note: '日常配饰，提升品味',
+                    name: '羊毛大衣',
+                    category: 'outerwear',
+                    season: 'winter',
+                    color: '黑色',
+                    brand: 'COS',
+                    note: '冬季保暖，商务风格',
+                    addTime: new Date().toISOString(),
+                    photo: null
+                },
+                {
+                    id: Date.now() + 6,
+                    name: '薄款防晒衫',
+                    category: 'outerwear',
+                    season: 'summer',
+                    color: '粉色',
+                    brand: '',
+                    note: '夏季防晒，轻薄透气',
                     addTime: new Date().toISOString(),
                     photo: null
                 }
@@ -2404,42 +2038,6 @@
             
             clothesData = sampleClothes;
             localStorage.setItem('clothesData', JSON.stringify(clothesData));
-        }
-
-        // 添加示例搭配数据
-        function addSampleOutfits() {
-            const sampleOutfits = [
-                {
-                    id: Date.now() + 1,
-                    name: '清新春日搭配',
-                    items: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'],
-                    score: 92,
-                    style: 'casual',
-                    season: 'spring',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: Date.now() + 2,
-                    name: '商务精英装',
-                    items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'],
-                    score: 95,
-                    style: 'business',
-                    season: 'all',
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: Date.now() + 3,
-                    name: '甜美可爱风',
-                    items: ['粉色毛衣', '白色裙子', '高跟鞋', '银色项链'],
-                    score: 88,
-                    style: 'sweet',
-                    season: 'spring',
-                    createdAt: new Date().toISOString()
-                }
-            ];
-            
-            outfitHistory = sampleOutfits;
-            localStorage.setItem('outfitHistory', JSON.stringify(outfitHistory));
         }
 
         // 更新问候语
@@ -2462,13 +2060,6 @@
         function updateClothesCount() {
             const count = clothesData.length;
             document.getElementById('clothesCount').textContent = count;
-            
-            if (count > 0) {
-                document.getElementById('clothesCount').style.animation = 'bounce 0.6s ease';
-                setTimeout(() => {
-                    document.getElementById('clothesCount').style.animation = '';
-                }, 600);
-            }
         }
 
         // 更新搭配数量
@@ -2488,10 +2079,6 @@
                 if (manageBtn) {
                     manageBtn.innerHTML = '<i class="fas fa-edit"></i> 整理';
                     manageBtn.classList.remove('cancel');
-                }
-                const dragHint = document.getElementById('dragHint');
-                if (dragHint) {
-                    dragHint.classList.remove('show');
                 }
             }
             
@@ -2534,37 +2121,48 @@
         function toggleManageMode() {
             isManageMode = !isManageMode;
             const manageBtn = document.getElementById('manageBtn');
-            const dragHint = document.getElementById('dragHint');
             const clothesItems = document.querySelectorAll('.clothes-item');
 
             if (isManageMode) {
                 manageBtn.innerHTML = '<i class="fas fa-check"></i> 完成';
                 manageBtn.classList.add('cancel');
-                dragHint.classList.add('show');
                 
                 clothesItems.forEach(item => {
                     item.classList.add('manage-mode');
                 });
                 
-                showToast('📦 进入整理模式，长按拖拽排序，点击❌删除', 'info');
+                showToast('📦 进入整理模式，点击❌删除衣物', 'info');
             } else {
                 manageBtn.innerHTML = '<i class="fas fa-edit"></i> 整理';
                 manageBtn.classList.remove('cancel');
-                dragHint.classList.remove('show');
                 
                 clothesItems.forEach(item => {
                     item.classList.remove('manage-mode');
                 });
                 
-                showToast('✅ 整理完成，新的排序已保存', 'success');
+                showToast('✅ 整理完成', 'success');
             }
+        }
+
+        // 🌡️ 季节筛选功能
+        function filterBySeason(season) {
+            currentSeasonFilter = season;
+            
+            // 更新季节标签样式
+            document.querySelectorAll('.season-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 重新渲染
+            renderClothes();
         }
 
         // 📂 分类筛选功能
         function filterByCategory(category) {
-            currentFilter = category;
+            currentCategoryFilter = category;
             
-            // 更新标签样式
+            // 更新分类标签样式
             document.querySelectorAll('.category-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -2572,31 +2170,50 @@
             
             // 重新渲染
             renderClothes();
-            
-            // 统计当前分类数量
-            const filteredData = category === 'all' ? clothesData : clothesData.filter(item => item.category === category);
-            const categoryNames = {
-                'all': '全部',
-                'top': '上衣',
-                'bottom': '下装',
-                'dress': '套装',
-                'outerwear': '外套',
-                'shoes': '鞋子',
-                'accessory': '配饰'
-            };
-            
-            showToast(`📂 ${categoryNames[category]} (${filteredData.length}件)`, 'info');
         }
 
-        // 渲染衣物列表
+        // 渲染衣物列表（支持双重筛选）
         function renderClothes() {
             const grid = document.getElementById('clothesGrid');
             
-            const filteredData = currentFilter === 'all' ? clothesData : clothesData.filter(item => item.category === currentFilter);
+            // 应用双重筛选
+            let filteredData = clothesData;
+            
+            // 季节筛选
+            if (currentSeasonFilter !== 'all') {
+                filteredData = filteredData.filter(item => 
+                    item.season === currentSeasonFilter || item.season === 'all'
+                );
+            }
+            
+            // 分类筛选
+            if (currentCategoryFilter !== 'all') {
+                filteredData = filteredData.filter(item => item.category === currentCategoryFilter);
+            }
+            
+            // 显示筛选结果统计
+            const filterResult = document.getElementById('filterResult');
+            const filterCount = document.getElementById('filterCount');
+            if (filterCount) {
+                filterCount.textContent = filteredData.length;
+                
+                if (currentSeasonFilter !== 'all' || currentCategoryFilter !== 'all') {
+                    filterResult.classList.add('show');
+                } else {
+                    filterResult.classList.remove('show');
+                }
+            }
             
             if (filteredData.length === 0) {
+                const seasonNames = {
+                    'all': '全部',
+                    'spring-autumn': '春秋装',
+                    'summer': '夏装',
+                    'winter': '冬装'
+                };
+                
                 const categoryNames = {
-                    'all': '衣柜',
+                    'all': '全部',
                     'top': '上衣',
                     'bottom': '下装',
                     'dress': '套装',
@@ -2605,11 +2222,22 @@
                     'accessory': '配饰'
                 };
                 
+                let emptyMessage = '';
+                if (currentSeasonFilter !== 'all' && currentCategoryFilter !== 'all') {
+                    emptyMessage = `${seasonNames[currentSeasonFilter]}${categoryNames[currentCategoryFilter]}`;
+                } else if (currentSeasonFilter !== 'all') {
+                    emptyMessage = seasonNames[currentSeasonFilter];
+                } else if (currentCategoryFilter !== 'all') {
+                    emptyMessage = categoryNames[currentCategoryFilter];
+                } else {
+                    emptyMessage = '衣柜';
+                }
+                
                 grid.innerHTML = `
                     <div class="empty-state" style="grid-column: 1 / -1;">
-                        <i class="fas ${getCategoryIcon(currentFilter === 'all' ? 'top' : currentFilter)}"></i>
-                        <h3>${categoryNames[currentFilter]}空空如也</h3>
-                        <p>${currentFilter === 'all' ? '快来添加您的第一件衣物吧' : `还没有${categoryNames[currentFilter]}类衣物`}<br>记录每一件心爱的单品</p>
+                        <i class="fas ${getCategoryIcon(currentCategoryFilter === 'all' ? 'top' : currentCategoryFilter)}"></i>
+                        <h3>${emptyMessage}暂无衣物</h3>
+                        <p>${currentSeasonFilter !== 'all' || currentCategoryFilter !== 'all' ? '尝试调整筛选条件' : '快来添加您的第一件衣物吧'}<br>记录每一件心爱的单品</p>
                         <button class="empty-btn" onclick="showPage('add')">
                             <i class="fas fa-plus"></i> 添加衣物
                         </button>
@@ -2635,16 +2263,15 @@
                     </div>
                     <div class="clothes-info">
                         <div class="clothes-name">${item.name}</div>
-                        <span class="clothes-category">${getCategoryName(item.category)}</span>
+                        <div class="clothes-tags">
+                            <span class="clothes-category">${getCategoryName(item.category)}</span>
+                            <span class="clothes-season">${getSeasonName(item.season)}</span>
+                        </div>
                         ${item.color ? `<div style="font-size: 11px; color: #999; margin-top: 4px;">${item.color}</div>` : ''}
                         ${item.brand ? `<div style="font-size: 10px; color: #bbb; margin-top: 2px;">${item.brand}</div>` : ''}
                     </div>
                 </div>
             `).join('');
-            
-            setTimeout(() => {
-                setupDragEvents();
-            }, 100);
         }
 
         // 删除衣物
@@ -2667,7 +2294,6 @@
                     isManageMode = false;
                     document.getElementById('manageBtn').innerHTML = '<i class="fas fa-edit"></i> 整理';
                     document.getElementById('manageBtn').classList.remove('cancel');
-                    document.getElementById('dragHint').classList.remove('show');
                     document.getElementById('wardrobeControls').style.display = 'none';
                 }
             }
@@ -2681,97 +2307,6 @@
             if (item) {
                 showToast(`👀 查看「${item.name}」详情`, 'info');
             }
-        }
-
-        // 设置拖拽事件
-        function setupDragEvents() {
-            // 拖拽功能实现
-            const clothesItems = document.querySelectorAll('.clothes-item[data-id]');
-            
-            clothesItems.forEach((item, index) => {
-                let touchStartTime = 0;
-                let longPressTimer = null;
-                let isDragging = false;
-                let startY = 0;
-                
-                item.addEventListener('touchstart', function(e) {
-                    if (!isManageMode) return;
-                    
-                    touchStartTime = Date.now();
-                    startY = e.touches[0].clientY;
-                    
-                    longPressTimer = setTimeout(() => {
-                        if (isManageMode) {
-                            isDragging = true;
-                            item.classList.add('dragging');
-                            draggedItem = item;
-                            draggedIndex = index;
-                            
-                            if (navigator.vibrate) {
-                                navigator.vibrate(50);
-                            }
-                            
-                            showToast('📦 开始拖拽，移动到目标位置后松手', 'info');
-                        }
-                    }, 500);
-                    
-                }, { passive: false });
-                
-                item.addEventListener('touchmove', function(e) {
-                    if (!isDragging || !isManageMode) return;
-                    
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                    const targetItem = elementBelow ? elementBelow.closest('.clothes-item[data-id]') : null;
-                    
-                    clothesItems.forEach(ci => ci.classList.remove('drag-over'));
-                    
-                    if (targetItem && targetItem !== item) {
-                        targetItem.classList.add('drag-over');
-                    }
-                    
-                }, { passive: false });
-                
-                item.addEventListener('touchend', function(e) {
-                    clearTimeout(longPressTimer);
-                    
-                    if (isDragging && isManageMode) {
-                        const touch = e.changedTouches[0];
-                        const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                        const targetItem = elementBelow ? elementBelow.closest('.clothes-item[data-id]') : null;
-                        
-                        if (targetItem && targetItem !== item) {
-                            const targetId = parseInt(targetItem.dataset.id);
-                            const draggedId = parseInt(item.dataset.id);
-                            
-                            reorderClothes(draggedId, targetId);
-                        }
-                        
-                        item.classList.remove('dragging');
-                        clothesItems.forEach(ci => ci.classList.remove('drag-over'));
-                        isDragging = false;
-                        draggedItem = null;
-                        draggedIndex = null;
-                    }
-                });
-            });
-        }
-
-        // 重新排序衣物
-        function reorderClothes(draggedId, targetId) {
-            const draggedItemData = clothesData.find(item => item.id === draggedId);
-            const targetIndex = clothesData.findIndex(item => item.id === targetId);
-            
-            if (!draggedItemData || targetIndex === -1) return;
-            
-            clothesData = clothesData.filter(item => item.id !== draggedId);
-            clothesData.splice(targetIndex, 0, draggedItemData);
-            
-            localStorage.setItem('clothesData', JSON.stringify(clothesData));
-            renderClothes();
-            
-            showToast('📦 排序已更新', 'success');
         }
 
         // 📷 相机功能
@@ -3019,6 +2554,17 @@
             });
         }
 
+        // 🌡️ 选择季节（添加衣物时）
+        function selectSeasonForAdd(season) {
+            selectedSeasonForAdd = season;
+            
+            // 更新选中状态
+            document.querySelectorAll('.season-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-season="${season}"]`).classList.add('selected');
+        }
+
         // 📝 添加衣物功能
         function addClothes() {
             const name = document.getElementById('clothesName').value.trim();
@@ -3038,11 +2584,17 @@
                 document.getElementById('clothesCategory').focus();
                 return;
             }
+            
+            if (!selectedSeasonForAdd) {
+                showToast('请选择适用季节 🌡️', 'error');
+                return;
+            }
 
             const newItem = {
                 id: Date.now(),
                 name: name,
                 category: category,
+                season: selectedSeasonForAdd,
                 color: color,
                 brand: brand,
                 note: note,
@@ -3059,6 +2611,10 @@
             document.getElementById('clothesColor').value = '';
             document.getElementById('clothesBrand').value = '';
             document.getElementById('clothesNote').value = '';
+            selectedSeasonForAdd = null;
+            document.querySelectorAll('.season-option').forEach(option => {
+                option.classList.remove('selected');
+            });
             removePhoto();
             
             updateClothesCount();
@@ -3069,621 +2625,183 @@
             }, 1500);
         }
 
-        // 🎨 搭配选项卡切换
-        function switchOutfitTab(tabName) {
-            currentOutfitTab = tabName;
+        // 👗 搭配工作台功能
+        function selectClothesForSlot(slotType) {
+            currentSelectingSlot = slotType;
             
-            // 更新选项卡样式
-            document.querySelectorAll('.outfit-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelector(`[onclick="switchOutfitTab('${tabName}')"]`).classList.add('active');
+            // 根据槽位类型筛选衣物
+            const availableClothes = clothesData.filter(item => item.category === slotType);
             
-            // 更新内容显示
-            document.querySelectorAll('.outfit-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-        }
-
-        // 🤖 AI智能搭配功能
-        function generateSmartOutfit() {
-            showToast('🤖 AI正在为您生成智能搭配...', 'info');
-            
-            // 模拟AI生成过程
-            setTimeout(() => {
-                const smartOutfits = [
-                    {
-                        name: '今日AI推荐',
-                        items: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'],
-                        score: 94,
-                        reason: 'AI分析了当前流行趋势和您的穿搭习惯'
-                    },
-                    {
-                        name: '商务场合推荐',
-                        items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'],
-                        score: 96,
-                        reason: '适合商务会议和正式场合'
-                    },
-                    {
-                        name: '休闲时尚推荐',
-                        items: ['粉色毛衣', '牛仔裤', '小白鞋', '银色项链'],
-                        score: 90,
-                        reason: '舒适休闲又不失时尚感'
-                    }
-                ];
-                
-                displayAIRecommendations(smartOutfits);
-                showToast('✨ 智能搭配生成完成！', 'success');
-            }, 2000);
-        }
-
-        function displayAIRecommendations(outfits) {
-            const container = document.getElementById('aiRecommendations');
-            
-            container.innerHTML = `
-                <h4 style="margin-bottom: 12px; color: #2c3e50; font-size: 14px;">
-                    <i class="fas fa-sparkles"></i> AI推荐搭配
-                </h4>
-                ${outfits.map(outfit => `
-                    <div class="outfit-card">
-                        <div class="outfit-header">
-                            <div class="outfit-title">${outfit.name}</div>
-                            <div class="outfit-score">${outfit.score}分</div>
-                        </div>
-                        <div class="outfit-items">
-                            ${outfit.items.map(item => `
-                                <div class="outfit-item">
-                                    <i class="fas ${getItemIcon(item)}"></i>
-                                    <span>${item}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div style="font-size: 11px; color: #7f8c8d; margin-bottom: 8px;">
-                            ${outfit.reason}
-                        </div>
-                        <div class="outfit-actions">
-                            <button class="outfit-btn" onclick="likeOutfit('${outfit.name}')">
-                                <i class="fas fa-heart"></i> 收藏
-                            </button>
-                            <button class="outfit-btn primary" onclick="useOutfit('${outfit.name}')">
-                                <i class="fas fa-check"></i> 使用这套
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        function getItemIcon(itemName) {
-            const iconMap = {
-                '白色T恤': 'fa-tshirt',
-                '蓝色衬衫': 'fa-user-tie',
-                '粉色毛衣': 'fa-tshirt',
-                '黑色T恤': 'fa-tshirt',
-                '黑色裤子': 'fa-cut',
-                '牛仔裤': 'fa-cut',
-                '白色裙子': 'fa-female',
-                '破洞牛仔裤': 'fa-cut',
-                '小白鞋': 'fa-shoe-prints',
-                '黑色皮鞋': 'fa-shoe-prints',
-                '高跟鞋': 'fa-shoe-prints',
-                '马丁靴': 'fa-shoe-prints',
-                '银色项链': 'fa-gem',
-                '帆布包': 'fa-shopping-bag',
-                '手表': 'fa-clock',
-                '棒球帽': 'fa-hat-cowboy'
-            };
-            return iconMap[itemName] || 'fa-tshirt';
-        }
-
-        function randomOutfit() {
-            showToast('🎲 正在为您生成随机搭配...', 'info');
-            
-            setTimeout(() => {
-                const randomOutfits = [
-                    {
-                        name: '随机搭配 #1',
-                        items: getRandomItems(),
-                        score: Math.floor(Math.random() * 20) + 80,
-                        reason: '随机组合，给您带来穿搭新灵感'
-                    },
-                    {
-                        name: '随机搭配 #2',
-                        items: getRandomItems(),
-                        score: Math.floor(Math.random() * 20) + 80,
-                        reason: '意想不到的搭配组合'
-                    }
-                ];
-                
-                displayAIRecommendations(randomOutfits);
-                showToast('🎉 随机搭配生成完成！', 'success');
-            }, 1000);
-        }
-
-        function getRandomItems() {
-            const categories = ['top', 'bottom', 'shoes', 'accessory'];
-            const items = [];
-            
-            categories.forEach(category => {
-                const categoryItems = mockClothes[category];
-                const randomItem = categoryItems[Math.floor(Math.random() * categoryItems.length)];
-                items.push(randomItem.name);
-            });
-            
-            return items;
-        }
-
-        function likeOutfit(outfitName) {
-            favoriteOutfits.push({
-                id: Date.now(),
-                name: outfitName,
-                createdAt: new Date().toISOString()
-            });
-            localStorage.setItem('favoriteOutfits', JSON.stringify(favoriteOutfits));
-            showToast(`💕 已收藏「${outfitName}」`, 'success');
-        }
-
-        function useOutfit(outfitName) {
-            showToast(`✅ 已选择「${outfitName}」作为今日搭配`, 'success');
-        }
-
-        function showAnalysisReport() {
-            const report = document.getElementById('analysisReport');
-            report.classList.add('show');
-            report.scrollIntoView({ behavior: 'smooth' });
-            showToast('📊 显示搭配分析报告', 'info');
-        }
-
-        function showVirtualFitting() {
-            const fitting = document.getElementById('virtualFitting');
-            fitting.classList.add('show');
-            fitting.scrollIntoView({ behavior: 'smooth' });
-            showToast('🎭 虚拟试衣功能展示', 'info');
-        }
-
-        // 🎨 色彩搭配功能
-        function selectColor(color) {
-            selectedColor = color;
-            
-            // 更新选中状态
-            document.querySelectorAll('.color-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            document.querySelector(`[data-color="${color}"]`).classList.add('selected');
-            
-            // 生成色彩分析
-            analyzeColor(color);
-        }
-
-        function analyzeColor(color) {
-            const colorAnalysis = {
-                red: {
-                    title: '红色系搭配分析',
-                    analysis: '红色充满活力与激情，适合作为点缀色使用。建议搭配中性色如白色、黑色或灰色来平衡整体效果。',
-                    suggestions: ['白色上衣 + 红色配饰', '黑色下装 + 红色鞋子', '灰色外套 + 红色内搭']
-                },
-                blue: {
-                    title: '蓝色系搭配分析',
-                    analysis: '蓝色代表稳重与专业，是百搭的经典色彩。深蓝色适合商务场合，浅蓝色营造清新感。',
-                    suggestions: ['蓝色衬衫 + 白色裤子', '深蓝外套 + 米色内搭', '浅蓝上衣 + 粉色配饰']
-                },
-                green: {
-                    title: '绿色系搭配分析',
-                    analysis: '绿色象征自然与生机，适合春夏季节。墨绿色显得优雅，浅绿色清新活泼。',
-                    suggestions: ['绿色上衣 + 棕色下装', '墨绿外套 + 米色内搭', '浅绿配饰 + 白色主体']
-                },
-                purple: {
-                    title: '紫色系搭配分析',
-                    analysis: '紫色神秘而优雅，适合展现个性。深紫色显贵气，浅紫色甜美可爱。',
-                    suggestions: ['紫色上衣 + 白色下装', '深紫外套 + 灰色内搭', '浅紫配饰 + 黑色主体']
-                },
-                orange: {
-                    title: '橙色系搭配分析',
-                    analysis: '橙色温暖而充满活力，适合秋季穿搭。建议作为点缀色使用，与牛仔蓝、米色、棕色搭配效果佳。',
-                    suggestions: ['橙色配饰 + 牛仔单品', '橙色上衣 + 米色下装', '橙色鞋子 + 棕色搭配']
-                },
-                black: {
-                    title: '黑色系搭配分析',
-                    analysis: '黑色经典永恒，显瘦又百搭。适合正式场合，也可营造酷感。',
-                    suggestions: ['黑白经典搭配', '黑色 + 红色亮点', '黑色 + 金色配饰']
-                },
-                white: {
-                    title: '白色系搭配分析',
-                    analysis: '白色纯净清新，是最百搭的颜色。适合任何季节和场合，可与所有颜色完美融合。',
-                    suggestions: ['全白极简风', '白色 + 任意彩色', '白色基础 + 图案点缀']
-                }
-            };
-            
-            const analysis = colorAnalysis[color];
-            if (analysis) {
-                document.getElementById('colorAnalysisResult').innerHTML = `
-                    <strong>${analysis.title}</strong><br><br>
-                    ${analysis.analysis}<br><br>
-                    <strong>推荐搭配：</strong><br>
-                    ${analysis.suggestions.map(s => `• ${s}`).join('<br>')}
-                `;
-                
-                // 生成基于颜色的搭配推荐
-                generateColorBasedOutfits(color);
-            }
-        }
-
-        function generateColorBasedOutfits(color) {
-            const container = document.getElementById('colorBasedOutfits');
-            
-            const colorOutfits = [
-                {
-                    name: `${color}色系搭配 #1`,
-                    items: getColorMatchingItems(color),
-                    score: Math.floor(Math.random() * 10) + 85
-                },
-                {
-                    name: `${color}色系搭配 #2`,
-                    items: getColorMatchingItems(color),
-                    score: Math.floor(Math.random() * 10) + 85
-                }
-            ];
-            
-            container.innerHTML = `
-                <h4 style="margin: 16px 0 12px; color: #2c3e50; font-size: 14px;">
-                    <i class="fas fa-palette"></i> 基于色彩的搭配推荐
-                </h4>
-                ${colorOutfits.map(outfit => `
-                    <div class="outfit-card">
-                        <div class="outfit-header">
-                            <div class="outfit-title">${outfit.name}</div>
-                            <div class="outfit-score">${outfit.score}分</div>
-                        </div>
-                        <div class="outfit-items">
-                            ${outfit.items.map(item => `
-                                <div class="outfit-item">
-                                    <i class="fas ${getItemIcon(item)}"></i>
-                                    <span>${item}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="outfit-actions">
-                            <button class="outfit-btn" onclick="likeOutfit('${outfit.name}')">
-                                <i class="fas fa-heart"></i> 收藏
-                            </button>
-                            <button class="outfit-btn primary" onclick="useOutfit('${outfit.name}')">
-                                <i class="fas fa-check"></i> 使用
-                            </button>
-                        </div>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        function getColorMatchingItems(color) {
-            // 根据颜色返回匹配的衣物组合
-            const colorCombos = {
-                red: ['白色T恤', '黑色裤子', '小白鞋', '银色项链'],
-                blue: ['蓝色衬衫', '白色裙子', '黑色皮鞋', '手表'],
-                green: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'],
-                purple: ['粉色毛衣', '黑色裤子', '高跟鞋', '银色项链'],
-                orange: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'],
-                black: ['黑色T恤', '牛仔裤', '马丁靴', '棒球帽'],
-                white: ['白色T恤', '白色裙子', '小白鞋', '银色项链']
-            };
-            
-            return colorCombos[color] || getRandomItems();
-        }
-
-        // 🌡️ 季节搭配功能
-        function selectSeason(season) {
-            selectedSeason = season;
-            
-            // 更新选中状态
-            document.querySelectorAll('.season-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelector(`[data-season="${season}"]`).classList.add('active');
-            
-            // 生成季节分析
-            analyzeSeason(season);
-        }
-
-        function analyzeSeason(season) {
-            const seasonAnalysis = {
-                spring: {
-                    title: '🌸 春季搭配建议',
-                    analysis: '春季温度适中，建议选择清新明亮的色彩。薄外套搭配轻盈单品，展现活力与生机。推荐薄款针织衫、风衣、运动鞋等。',
-                    outfits: [
-                        {name: '清新春日', items: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'], score: 92},
-                        {name: '春日甜美', items: ['粉色毛衣', '白色裙子', '高跟鞋', '银色项链'], score: 88}
-                    ]
-                },
-                summer: {
-                    title: '☀️ 夏季搭配建议',
-                    analysis: '夏季炎热，选择轻薄透气的面料。浅色系为主，避免吸热的深色。推荐棉麻材质、短袖、凉鞋等清爽单品。',
-                    outfits: [
-                        {name: '清凉夏日', items: ['白色T恤', '白色裙子', '小白鞋', '帆布包'], score: 90},
-                        {name: '夏日活力', items: ['蓝色衬衫', '牛仔裤', '小白鞋', '棒球帽'], score: 87}
-                    ]
-                },
-                autumn: {
-                    title: '🍂 秋季搭配建议',
-                    analysis: '秋季温差较大，建议层次穿搭。暖色调营造温馨感，毛衣、风衣、靴子是秋季必备单品。',
-                    outfits: [
-                        {name: '秋日温暖', items: ['粉色毛衣', '黑色裤子', '马丁靴', '帆布包'], score: 89},
-                        {name: '秋季优雅', items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'], score: 94}
-                    ]
-                },
-                winter: {
-                    title: '❄️ 冬季搭配建议',
-                    analysis: '冬季寒冷，保暖是首要考虑。选择厚实的面料和深色系。羽绒服、毛呢大衣、长靴是必备单品。',
-                    outfits: [
-                        {name: '冬日保暖', items: ['黑色T恤', '黑色裤子', '马丁靴', '棒球帽'], score: 86},
-                        {name: '冬季商务', items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'], score: 95}
-                    ]
-                }
-            };
-            
-            const analysis = seasonAnalysis[season];
-            if (analysis) {
-                document.getElementById('seasonAnalysisResult').innerHTML = `
-                    <strong>${analysis.title}</strong><br><br>
-                    ${analysis.analysis}
-                `;
-                
-                // 显示季节性搭配推荐
-                const container = document.getElementById('seasonalOutfits');
-                container.innerHTML = `
-                    <h4 style="margin: 16px 0 12px; color: #2c3e50; font-size: 14px;">
-                        <i class="fas fa-leaf"></i> ${analysis.title.split(' ')[1]}搭配推荐
-                    </h4>
-                    ${analysis.outfits.map(outfit => `
-                        <div class="outfit-card">
-                            <div class="outfit-header">
-                                <div class="outfit-title">${outfit.name}</div>
-                                <div class="outfit-score">${outfit.score}分</div>
-                            </div>
-                            <div class="outfit-items">
-                                ${outfit.items.map(item => `
-                                    <div class="outfit-item">
-                                        <i class="fas ${getItemIcon(item)}"></i>
-                                        <span>${item}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div class="outfit-actions">
-                                <button class="outfit-btn" onclick="likeOutfit('${outfit.name}')">
-                                    <i class="fas fa-heart"></i> 收藏
-                                </button>
-                                <button class="outfit-btn primary" onclick="useOutfit('${outfit.name}')">
-                                    <i class="fas fa-check"></i> 使用
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-            }
-        }
-
-        // 🎪 风格实验功能
-        function selectStyle(style) {
-            selectedStyle = style;
-            
-            // 更新选中状态
-            document.querySelectorAll('.style-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            document.querySelector(`[data-style="${style}"]`).classList.add('selected');
-            
-            // 生成风格分析
-            analyzeStyle(style);
-        }
-
-        function analyzeStyle(style) {
-            const styleAnalysis = {
-                casual: {
-                    title: '休闲风格搭配',
-                    analysis: '注重舒适与实用，选择柔软面料和宽松剪裁。色彩以中性色为主，营造轻松自在的氛围。',
-                    outfits: [
-                        {name: '休闲舒适', items: ['白色T恤', '牛仔裤', '小白鞋', '帆布包'], score: 91},
-                        {name: '周末休闲', items: ['粉色毛衣', '牛仔裤', '小白鞋', '棒球帽'], score: 89}
-                    ]
-                },
-                business: {
-                    title: '商务风格搭配',
-                    analysis: '强调专业性和正式感，选择经典剪裁和中性色彩。质感面料提升整体品味。',
-                    outfits: [
-                        {name: '商务精英', items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'], score: 96},
-                        {name: '职场女性', items: ['蓝色衬衫', '白色裙子', '高跟鞋', '银色项链'], score: 94}
-                    ]
-                },
-                sweet: {
-                    title: '甜美风格搭配',
-                    analysis: '突出女性柔美魅力，选择粉色系和花卉图案。蕾丝、荷叶边等元素增添甜美感。',
-                    outfits: [
-                        {name: '甜美公主', items: ['粉色毛衣', '白色裙子', '高跟鞋', '银色项链'], score: 93},
-                        {name: '可爱少女', items: ['白色T恤', '白色裙子', '小白鞋', '帆布包'], score: 87}
-                    ]
-                },
-                cool: {
-                    title: '酷帅风格搭配',
-                    analysis: '展现个性与态度，多用黑色和中性剪裁。皮衣、靴子等单品营造酷感。',
-                    outfits: [
-                        {name: '酷帅女孩', items: ['黑色T恤', '破洞牛仔裤', '马丁靴', '棒球帽'], score: 92},
-                        {name: '街头酷感', items: ['黑色T恤', '黑色裤子', '马丁靴', '棒球帽'], score: 90}
-                    ]
-                },
-                elegant: {
-                    title: '优雅风格搭配',
-                    analysis: '追求精致与品味，选择高质感面料和经典设计。配饰精美，整体协调统一。',
-                    outfits: [
-                        {name: '优雅女士', items: ['蓝色衬衫', '白色裙子', '高跟鞋', '银色项链'], score: 95},
-                        {name: '知性优雅', items: ['蓝色衬衫', '黑色裤子', '黑色皮鞋', '手表'], score: 93}
-                    ]
-                },
-                vintage: {
-                    title: '复古风格搭配',
-                    analysis: '致敬经典年代的时尚元素，选择有历史感的设计和图案。怀旧与现代的完美结合。',
-                    outfits: [
-                        {name: '复古女郎', items: ['蓝色衬衫', '白色裙子', '高跟鞋', '帆布包'], score: 88},
-                        {name: '怀旧风情', items: ['粉色毛衣', '牛仔裤', '马丁靴', '银色项链'], score: 86}
-                    ]
-                }
-            };
-            
-            const analysis = styleAnalysis[style];
-            if (analysis) {
-                document.getElementById('styleAnalysisResult').innerHTML = `
-                    <strong>${analysis.title}</strong><br><br>
-                    ${analysis.analysis}
-                `;
-                
-                // 显示风格搭配方案
-                const container = document.getElementById('styleOutfitDisplay');
-                container.innerHTML = `
-                    <h4 style="margin: 16px 0 12px; color: #2c3e50; font-size: 14px;">
-                        <i class="fas fa-star"></i> ${analysis.title}
-                    </h4>
-                    ${analysis.outfits.map(outfit => `
-                        <div class="outfit-card">
-                            <div class="outfit-header">
-                                <div class="outfit-title">${outfit.name}</div>
-                                <div class="outfit-score">${outfit.score}分</div>
-                            </div>
-                            <div class="outfit-items">
-                                ${outfit.items.map(item => `
-                                    <div class="outfit-item">
-                                        <i class="fas ${getItemIcon(item)}"></i>
-                                        <span>${item}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            <div class="outfit-actions">
-                                <button class="outfit-btn" onclick="likeOutfit('${outfit.name}')">
-                                    <i class="fas fa-heart"></i> 收藏
-                                </button>
-                                <button class="outfit-btn primary" onclick="useOutfit('${outfit.name}')">
-                                    <i class="fas fa-check"></i> 使用
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-            }
-        }
-
-        // 🔄 搭配组合器功能
-        function selectClothesForCombo(category) {
-            const clothes = mockClothes[category];
-            if (!clothes || clothes.length === 0) {
-                showToast(`暂无${getCategoryName(category)}类衣物`, 'info');
+            if (availableClothes.length === 0) {
+                showToast(`暂无${getCategoryName(slotType)}类衣物，请先添加`, 'info');
                 return;
             }
             
-            // 简化版选择逻辑：随机选择一件衣物
-            const randomClothes = clothes[Math.floor(Math.random() * clothes.length)];
-            currentCombo[category] = randomClothes;
-            
-            // 更新UI显示
-            updateComboDisplay(category, randomClothes);
-            
-            showToast(`已选择：${randomClothes.name}`, 'success');
+            // 显示选择器
+            showClothesSelector(slotType, availableClothes);
         }
 
-        function updateComboDisplay(category, clothes) {
-            const comboCategory = document.querySelector(`[data-category="${category}"]`);
-            comboCategory.classList.remove('empty');
-            comboCategory.classList.add('has-item');
+        function showClothesSelector(slotType, clothes) {
+            const selector = document.getElementById('clothesSelector');
+            const selectorTitle = document.getElementById('selectorTitle');
+            const selectorGrid = document.getElementById('selectorGrid');
             
-            comboCategory.innerHTML = `
-                <div class="combo-item-preview has-image">
-                    <i class="fas ${clothes.icon}"></i>
+            selectorTitle.textContent = `选择${getCategoryName(slotType)}`;
+            
+            selectorGrid.innerHTML = clothes.map(item => `
+                <div class="selector-item" onclick="selectClothesItem(${item.id})">
+                    <div class="selector-item-image">
+                        ${item.photo ? 
+                            `<img src="${item.photo}" alt="${item.name}">` : 
+                            `<i class="fas ${getCategoryIcon(item.category)}"></i>`
+                        }
+                    </div>
+                    <div class="selector-item-name">${item.name}</div>
                 </div>
-                <div>${clothes.name}</div>
-                <div style="font-size: 9px; color: #7f8c8d; margin-top: 2px;">${clothes.color}</div>
+            `).join('');
+            
+            selector.classList.add('active');
+        }
+
+        function closeCothesSelector() {
+            document.getElementById('clothesSelector').classList.remove('active');
+            currentSelectingSlot = null;
+        }
+
+        function selectClothesItem(id) {
+            const item = clothesData.find(c => c.id === id);
+            if (!item || !currentSelectingSlot) return;
+            
+            // 更新搭配工作台
+            currentOutfit[currentSelectingSlot] = item;
+            updateOutfitSlot(currentSelectingSlot, item);
+            
+            // 关闭选择器
+            closeCothesSelector();
+            
+            showToast(`已选择：${item.name}`, 'success');
+        }
+
+        function updateOutfitSlot(slotType, item) {
+            const slot = document.querySelector(`[data-slot="${slotType}"]`);
+            
+            slot.classList.add('has-item');
+            slot.innerHTML = `
+                <div class="slot-item">
+                    <div class="slot-item-image">
+                        <i class="fas ${getCategoryIcon(item.category)}"></i>
+                    </div>
+                    <div class="slot-item-name">${item.name}</div>
+                    <div class="slot-item-details">${item.color || ''} ${item.brand || ''}</div>
+                </div>
+                <div class="slot-remove-btn" onclick="removeFromSlot('${slotType}')">
+                    <i class="fas fa-times"></i>
+                </div>
             `;
         }
 
-        function getCategoryName(category) {
-            const names = {
-                'top': '上衣',
-                'bottom': '下装',
-                'shoes': '鞋子',
-                'accessory': '配饰'
-            };
-            return names[category] || category;
-        }
-
-        function clearCombo() {
-            currentCombo = {
-                top: null,
-                bottom: null,
-                shoes: null,
-                accessory: null
+        function removeFromSlot(slotType) {
+            currentOutfit[slotType] = null;
+            
+            const slot = document.querySelector(`[data-slot="${slotType}"]`);
+            slot.classList.remove('has-item');
+            
+            const slotNames = {
+                'top': '选择上衣',
+                'bottom': '选择下装'
             };
             
-            // 重置UI
-            document.querySelectorAll('.combo-category').forEach(category => {
-                category.classList.remove('has-item');
-                category.classList.add('empty');
-                
-                const categoryType = category.dataset.category;
-                const icons = {
-                    'top': 'fa-tshirt',
-                    'bottom': 'fa-cut',
-                    'shoes': 'fa-shoe-prints',
-                    'accessory': 'fa-gem'
-                };
-                
-                category.innerHTML = `
-                    <div class="combo-item-preview">
-                        <i class="fas ${icons[categoryType]}"></i>
-                    </div>
-                    <div>选择${getCategoryName(categoryType)}</div>
-                `;
+            const icons = {
+                'top': 'fa-tshirt',
+                'bottom': 'fa-cut'
+            };
+            
+            slot.innerHTML = `
+                <div class="slot-placeholder">
+                    <i class="fas ${icons[slotType]}"></i>
+                    <div>${slotNames[slotType]}</div>
+                    <div style="font-size: 10px; margin-top: 4px; opacity: 0.7;">点击添加</div>
+                </div>
+            `;
+            
+            // 隐藏预览
+            document.getElementById('outfitPreview').classList.remove('show');
+        }
+
+        function clearOutfitBuilder() {
+            currentOutfit = {
+                top: null,
+                bottom: null
+            };
+            
+            // 重置所有槽位
+            Object.keys(currentOutfit).forEach(slotType => {
+                removeFromSlot(slotType);
             });
             
-            // 隐藏分析报告
-            document.getElementById('analysisReport').classList.remove('show');
-            
-            showToast('已清空搭配', 'info');
+            showToast('已清空搭配工作台', 'info');
         }
 
-        function analyzeCombo() {
-            const selectedItems = Object.values(currentCombo).filter(item => item !== null);
+        function analyzeOutfit() {
+            const selectedItems = Object.values(currentOutfit).filter(item => item !== null);
             
             if (selectedItems.length < 2) {
-                showToast('请至少选择2件衣物进行分析', 'error');
+                showToast('请至少选择上衣和下装', 'error');
                 return;
             }
             
             // 模拟搭配分析
-            const score = Math.floor(Math.random() * 20) + 80; // 80-100分
-            document.getElementById('scoreCircle').textContent = score;
+            const score = Math.floor(Math.random() * 20) + 80;
             
-            // 显示分析报告
-            const report = document.getElementById('analysisReport');
-            report.classList.add('show');
-            
-            // 滚动到分析报告
-            report.scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
+            // 显示预览
+            showOutfitPreview(selectedItems, score);
             
             showToast(`搭配分析完成，得分：${score}分`, 'success');
         }
 
-        function saveCombo() {
-            const selectedItems = Object.values(currentCombo).filter(item => item !== null);
+        function showOutfitPreview(items, score) {
+            const preview = document.getElementById('outfitPreview');
+            const outfitScore = document.getElementById('outfitScore');
+            const previewItems = document.getElementById('previewItems');
+            const previewAnalysis = document.getElementById('previewAnalysis');
+            
+            outfitScore.textContent = `${score}分`;
+            
+            previewItems.innerHTML = items.map(item => `
+                <div class="preview-item">
+                    <i class="fas ${getCategoryIcon(item.category)}"></i>
+                    <span>${item.name}</span>
+                </div>
+            `).join('');
+            
+            // 生成分析文本
+            const analyses = [
+                '这套搭配色彩协调，风格统一，适合日常休闲场合。',
+                '整体搭配比例得当，显得精神利落，适合多种场合。',
+                '搭配简约大方，颜色搭配和谐，展现优雅气质。',
+                '休闲舒适的搭配，适合日常出行和朋友聚会。'
+            ];
+            
+            const randomAnalysis = analyses[Math.floor(Math.random() * analyses.length)];
+            previewAnalysis.innerHTML = `<strong>AI分析：</strong>${randomAnalysis}`;
+            
+            preview.classList.add('show');
+            preview.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function saveOutfit() {
+            const selectedItems = Object.values(currentOutfit).filter(item => item !== null);
             
             if (selectedItems.length < 2) {
-                showToast('请至少选择2件衣物才能保存', 'error');
+                showToast('请至少选择上衣和下装才能保存', 'error');
                 return;
             }
             
             const outfit = {
                 id: Date.now(),
-                name: `自定义搭配 #${outfitHistory.length + 1}`,
+                name: `搭配 #${outfitHistory.length + 1}`,
                 items: selectedItems.map(item => item.name),
-                combo: {...currentCombo},
+                clothes: selectedItems,
                 createdAt: new Date().toISOString(),
                 score: Math.floor(Math.random() * 20) + 80
             };
@@ -3691,80 +2809,38 @@
             outfitHistory.unshift(outfit);
             localStorage.setItem('outfitHistory', JSON.stringify(outfitHistory));
             
-            // 更新统计数据
             updateOutfitCount();
-            
             showToast('搭配已保存到历史记录', 'success');
         }
 
-        // 🎭 虚拟试衣功能
-        function rotateFitting(direction) {
-            showToast(`🔄 ${direction === 'left' ? '左' : '右'}转试衣模型`, 'info');
-        }
-
-        function takeScreenshot() {
-            showToast('📸 试衣截图已保存', 'success');
-        }
-
-        // 📚 历史记录功能
-        function switchHistoryTab(tab) {
-            // 更新标签状态
-            document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[onclick="switchHistoryTab('${tab}')"]`).classList.add('active');
+        function generateQuickOutfit() {
+            const tops = clothesData.filter(item => item.category === 'top');
+            const bottoms = clothesData.filter(item => item.category === 'bottom');
             
-            // 加载对应数据
-            loadHistoryData(tab);
-        }
-
-        function loadHistoryData(tab = 'recent') {
-            const grid = document.getElementById('historyGrid');
-            
-            if (outfitHistory.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; color: #7f8c8d; padding: 30px;">
-                        <i class="fas fa-history" style="font-size: 28px; margin-bottom: 8px; opacity: 0.4;"></i>
-                        <div style="font-size: 12px;">还没有搭配历史记录</div>
-                        <div style="font-size: 10px; margin-top: 4px;">开始创建您的第一个搭配吧</div>
-                    </div>
-                `;
+            if (tops.length === 0 || bottoms.length === 0) {
+                showToast('需要至少有一件上衣和一件下装', 'info');
                 return;
             }
             
-            let data = outfitHistory;
-            if (tab === 'favorite') {
-                data = favoriteOutfits;
-            } else if (tab === 'popular') {
-                data = outfitHistory.filter(outfit => outfit.score > 85);
-            }
+            const randomTop = tops[Math.floor(Math.random() * tops.length)];
+            const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
             
-            if (data.length === 0) {
-                grid.innerHTML = `
-                    <div style="grid-column: 1 / -1; text-align: center; color: #7f8c8d; padding: 30px;">
-                        <i class="fas fa-heart" style="font-size: 28px; margin-bottom: 8px; opacity: 0.4;"></i>
-                        <div style="font-size: 12px;">暂无${tab === 'favorite' ? '收藏' : '热门'}搭配</div>
-                    </div>
-                `;
-                return;
-            }
+            currentOutfit.top = randomTop;
+            currentOutfit.bottom = randomBottom;
             
-            grid.innerHTML = data.slice(0, 6).map(outfit => `
-                <div class="history-item" onclick="viewOutfit(${outfit.id})">
-                    <div class="history-preview">
-                        <i class="fas fa-tshirt"></i>
-                    </div>
-                    <div class="history-info">
-                        <div style="font-weight: 600; margin-bottom: 2px; font-size: 11px;">${outfit.name || '搭配'}</div>
-                        <div style="font-size: 9px;">${outfit.score || 85}分 · ${new Date(outfit.createdAt).toLocaleDateString()}</div>
-                    </div>
-                </div>
-            `).join('');
+            updateOutfitSlot('top', randomTop);
+            updateOutfitSlot('bottom', randomBottom);
+            
+            showToast('🎯 快速推荐搭配生成完成', 'success');
+            
+            // 自动分析
+            setTimeout(() => {
+                analyzeOutfit();
+            }, 1000);
         }
 
-        function viewOutfit(id) {
-            const outfit = outfitHistory.find(o => o.id === id);
-            if (outfit) {
-                showToast(`👀 查看「${outfit.name}」详情`, 'info');
-            }
+        function randomOutfitBuilder() {
+            generateQuickOutfit();
         }
 
         function getCategoryIcon(category) {
@@ -3789,6 +2865,16 @@
                 'accessory': '配饰'
             };
             return names[category] || category;
+        }
+
+        function getSeasonName(season) {
+            const names = {
+                'spring-autumn': '春秋',
+                'summer': '夏装',
+                'winter': '冬装',
+                'all': '四季'
+            };
+            return names[season] || season;
         }
 
         // 通用提示功能
@@ -3835,12 +2921,14 @@
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
                 closeCamera();
+                closeCothesSelector();
             }
         });
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeCamera();
+                closeCothesSelector();
             }
         });
     </script>
